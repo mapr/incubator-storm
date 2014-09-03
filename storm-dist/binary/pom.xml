@@ -27,8 +27,8 @@
     <groupId>org.apache.storm</groupId>
     <artifactId>apache-storm-bin</artifactId>
     <packaging>pom</packaging>
-    <name>Storm Binary Distribution</name>
-    <description>Storm binary distribution</description>
+    <name>Mapr Storm Binary Distribution</name>
+    <description>Mapr Storm binary distribution</description>
 
     <dependencies>
         <dependency>
@@ -39,7 +39,7 @@
     </dependencies>
 
     <build>
-        <finalName>apache-storm-${project.version}</finalName>
+        <finalName>mapr-storm-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
