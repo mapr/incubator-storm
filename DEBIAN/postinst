@@ -1,5 +1,5 @@
 #!/bin/sh
 set -e
 PATH=/opt/mapr/storm/mapr-storm-0.9.3-incubating-SNAPSHOT/
-/bin/mkdir -p /opt/mapr/conf.d/
-/bin/ln -s $PATH/conf.d/* /opt/mapr/conf.d/
+/bin/mkdir -p /opt/mapr/conf/conf.d/
+/bin/ln -s $PATH/conf.d/* /opt/mapr/conf/conf.d/
