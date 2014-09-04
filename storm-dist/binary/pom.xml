@@ -30,6 +30,10 @@
     <name>Mapr Storm Binary Distribution</name>
     <description>Mapr Storm binary distribution</description>
 
+    <properties>
+        <storm.dir>/opt/mapr/storm/${project.build.finalName}</storm.dir>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.storm</groupId>
