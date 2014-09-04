@@ -18,29 +18,41 @@
 <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
-    <baseDirectory>opt/mapr/storm/${project.build.finalName}</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <id>bin</id>
     <formats>
         <format>tar.gz</format>
-        <format>zip</format>
     </formats>
 
     <!-- put deps in the lib folder -->
     <dependencySets>
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
-            <outputDirectory>lib</outputDirectory>
+            <outputDirectory>${storm.dir}/lib</outputDirectory>
             <unpack>false</unpack>
         </dependencySet>
     </dependencySets>
 
     <fileSets>
-        <!--
-            $STORM_HOME/bin
-        -->
+        <fileSet>
+            <directory>${project.basedir}/../../DEBIAN</directory>
+            <outputDirectory>/DEBIAN</outputDirectory>
+            <includes>
+                <include>*</include>
+            </includes>
+            <fileMode>0755</fileMode>
+        </fileSet>
+
+        <fileSet>
+            <directory>${project.basedir}/../../conf.d</directory>
+            <outputDirectory>${storm.dir}/conf.d</outputDirectory>
+            <includes>
+                <include>*</include>
+            </includes>
+        </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../bin</directory>
-            <outputDirectory>bin</outputDirectory>
+            <outputDirectory>${storm.dir}/bin</outputDirectory>
             <includes>
                 <include>storm*</include>
             </includes>
@@ -48,7 +60,7 @@
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../storm-core/src/ui/public</directory>
-            <outputDirectory>public</outputDirectory>
+            <outputDirectory>${storm.dir}/public</outputDirectory>
             <includes>
                 <include>*/**</include>
             </includes>
@@ -56,7 +68,7 @@
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../examples</directory>
-            <outputDirectory>examples</outputDirectory>
+            <outputDirectory>${storm.dir}/examples</outputDirectory>
             <excludes>
                 <exclude>**/target/**</exclude>
             </excludes>
@@ -71,28 +83,28 @@
         <!-- EXTERNAL -->
         <fileSet>
             <directory>${project.basedir}/../../external/storm-kafka/target</directory>
-            <outputDirectory>external/storm-kafka</outputDirectory>
+            <outputDirectory>${storm.dir}/external/storm-kafka</outputDirectory>
             <includes>
                 <include>storm*jar</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../external/storm-kafka</directory>
-            <outputDirectory>external/storm-kafka</outputDirectory>
+            <outputDirectory>${storm.dir}/external/storm-kafka</outputDirectory>
             <includes>
                 <include>README.*</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../external/storm-hdfs/target</directory>
-            <outputDirectory>external/storm-hdfs</outputDirectory>
+            <outputDirectory>${storm.dir}/external/storm-hdfs</outputDirectory>
             <includes>
                 <include>storm*jar</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../external/storm-hdfs</directory>
-            <outputDirectory>external/storm-hdfs</outputDirectory>
+            <outputDirectory>${storm.dir}/external/storm-hdfs</outputDirectory>
             <includes>
                 <include>README.*</include>
             </includes>
@@ -241,8 +253,8 @@
     <files>
         <!-- EXAMPLES -->
         <file>
-            <source>${project.basedir}/../../examples/storm-starter/target/storm-starter-${project.version}.jar</source>
-            <outputDirectory>/examples/storm-starter/</outputDirectory>
+            <source>${project.basedir}/../../examples/storm-starter/target/storm-starter-${project.version}-jar-with-dependencies.jar</source>
+            <outputDirectory>${storm.dir}/examples/storm-starter/</outputDirectory>
             <destName>storm-starter-topologies-${project.version}.jar</destName>
         </file>
 
@@ -252,12 +264,12 @@
         -->
         <file>
             <source>${project.basedir}/../../conf/storm.yaml.example</source>
-            <outputDirectory>/conf</outputDirectory>
+            <outputDirectory>${storm.dir}/conf</outputDirectory>
             <destName>storm.yaml</destName>
         </file>
         <file>
             <source>${project.basedir}/../../conf/storm_env.ini</source>
-            <outputDirectory>/conf</outputDirectory>
+            <outputDirectory>${storm.dir}/conf</outputDirectory>
             <destName>storm_env.ini</destName>
         </file>
         <!-- TODO this should be a generated file from "target" -->
@@ -265,38 +277,42 @@
             <source>${project.basedir}/../../log4j2/cluster.xml</source>
             <outputDirectory>/log4j2</outputDirectory>
         </file>
-
         <file>
             <source>${project.basedir}/../../log4j2/worker.xml</source>
             <outputDirectory>/log4j2</outputDirectory>
         </file>
-
+        <file>
+            <source>${project.basedir}/../../VERSION</source>
+            <outputDirectory>${storm.dir}/</outputDirectory>
+            <destName>RELEASE</destName>
+            <filtered>true</filtered>
+        </file>
         <file>
             <source>${project.basedir}/LICENSE</source>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory>${storm.dir}/</outputDirectory>
         </file>
 
         <file>
             <source>${project.basedir}/NOTICE</source>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory>${storm.dir}/</outputDirectory>
         </file>
         <file>
             <source>${project.basedir}/../../README.markdown</source>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory>${storm.dir}/</outputDirectory>
         </file>
         <file>
             <source>${project.basedir}/../../DISCLAIMER</source>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory>${storm.dir}/</outputDirectory>
         </file>
 
         <file>
             <source>${project.basedir}/../../CHANGELOG.md</source>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory>${storm.dir}/</outputDirectory>
         </file>
 
         <file>
             <source>${project.basedir}/../../SECURITY.md</source>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory>${storm.dir}/</outputDirectory>
         </file>
     </files>
 </assembly>
