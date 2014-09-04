@@ -20,11 +20,11 @@ case $COMMAND in
     	PROCESS_ID=`jps | grep $SERVICE | awk -F " " '{print $1}' | grep -v '^$'`
 		if [ -n "$PROCESS_ID" ];then
 			echo $SERVICE running as process $PROCESS_ID.
-			echo " `date +%m.%d-%H:%M:%S` INFO : Process checked for $SERVICE : TRUE" >> $PATH_LOG/daemons.txt
+#			echo " `date +%m.%d-%H:%M:%S` INFO : Process checked for $SERVICE : TRUE" >> $PATH_LOG/daemons.txt
 			exit 0;
 		else
 			echo $SERVICE not running.
-			echo " `date +%m.%d-%H:%M:%S` INFO : Process checked for $SERVICE : FALSE" >> $PATH_LOG/daemons.txt
+#			echo " `date +%m.%d-%H:%M:%S` INFO : Process checked for $SERVICE : FALSE" >> $PATH_LOG/daemons.txt
 			exit 1;
     	fi
 		;;
@@ -34,7 +34,7 @@ case $COMMAND in
 		kill -9 $PROCES_ID
 		;;
 	start)
-		echo " `date +%m.%d-%H:%M:%S` INFO : Process starting for $SERVICE " >> $PATH_LOG/daemons.txt
+#		echo " `date +%m.%d-%H:%M:%S` INFO : Process starting for $SERVICE " >> $PATH_LOG/daemons.txt
 		$PATH_BIN/storm $SERVICE
-		echo " `date +%d-%H.%M.%S` INFO : Process FFstarted for $SERVICE " >> $PATH_LOG/daemons.txt
+#		echo " `date +%d-%H.%M.%S` INFO : Process FFstarted for $SERVICE " >> $PATH_LOG/daemons.txt
 esac

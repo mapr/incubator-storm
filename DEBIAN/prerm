@@ -1,0 +1,4 @@
+#!/bin/sh
+set -e
+rm /opt/mapr/conf/conf.d/warden.nimbus.conf
+rm /opt/mapr/conf/conf.d/warden.supervisor.conf
