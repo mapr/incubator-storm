@@ -14,6 +14,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+ storm.local.dir: "/tmp/storm-data"
+
+ storm.zookeeper.servers:
+     - "localhost"
+
+ storm.zookeeper.port: 5181
+ nimbus.host: "localhost"
+
+ supervisor.slots.ports:
+    - 6700
+    - 6701
+    - 6702
+    - 6703
+
 ########### These MUST be filled in for a storm configuration
 # storm.zookeeper.servers:
 #     - "server1"
