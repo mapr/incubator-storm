@@ -31,7 +31,7 @@
     <description>Mapr Storm binary distribution</description>
 
     <properties>
-        <storm.dir>/opt/mapr/storm/${project.build.finalName}</storm.dir>
+        <storm.dir>/opt/mapr/storm/storm-0.9.3</storm.dir>
     </properties>
 
     <dependencies>
