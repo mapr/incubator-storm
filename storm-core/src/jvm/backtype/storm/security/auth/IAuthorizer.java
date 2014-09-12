@@ -24,10 +24,10 @@ import java.util.Map;
  * If not specified, all requests are authorized.
  * 
  * You could specify the authorization plugin via storm parameter. For example:
- *  storm -c nimbus.authorization.class=backtype.storm.security.auth.NoopAuthorizer ...
+ *  storm -c nimbus.authorization.class=backtype.storm.security.auth.authorizer.NoopAuthorizer ...
  *  
  * You could also specify it via storm.yaml:
- *   nimbus.authorization.class: backtype.storm.security.auth.NoopAuthorizer
+ *   nimbus.authorization.class: backtype.storm.security.auth.authorizer.NoopAuthorizer
  */
 public interface IAuthorizer {
     /**
