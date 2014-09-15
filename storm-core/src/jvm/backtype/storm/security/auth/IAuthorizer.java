@@ -27,7 +27,7 @@ import java.util.Map;
  *  storm -c nimbus.authorization.class=backtype.storm.security.auth.authorizer.NoopAuthorizer ...
  *  
  * You could also specify it via storm.yaml:
- *   nimbus.authorization.class: backtype.storm.security.auth.authorizer.NoopAuthorizer
+ *   nimbus.authorizer: backtype.storm.security.auth.authorizer.NoopAuthorizer
  */
 public interface IAuthorizer {
     /**
