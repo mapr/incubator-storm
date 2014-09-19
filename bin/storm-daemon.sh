@@ -42,7 +42,7 @@ case $COMMAND in
 
 		if [ $SERVICE == "storm-yarn" ];then
 			PROCESS_ID=` ps -ax | grep "n.MasterServer" | grep  -v  -m 1 "grep n.MasterServer" | awk -F "/" '{print $13}'`
-			$STORM_YARN_PATH/bin/storm-yarn shutdown -appId PROCESS_ID
+			$STORM_YARN_PATH/bin/storm-yarn shutdown -appId $PROCESS_ID
 			maprcli alarm delete -alarm NODE_ALARM_SERVICE_STORMYARN_DOWN
 		else
 			PROCES_ID=`jps | grep $SERVICE | awk -F " " '{print $1}'`
