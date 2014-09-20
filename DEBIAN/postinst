@@ -1,7 +1,0 @@
-#!/bin/sh
-set -e
-PATH=/opt/mapr/storm/storm-0.9.3
-/bin/mkdir -p /opt/mapr/conf/conf.d/
-/bin/ln -fs $PATH/conf.d/* /opt/mapr/conf/conf.d/
-/bin/mkdir -p $PATH/logs
-/bin/chmod +w $PATH/logs
