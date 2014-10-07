@@ -1,3 +1,11 @@
+Pre-requisites
+==============
+
+You will need install rabbitmq-server and run it.
+
+Test Storm with RabbitMQ
+========================
+
 Build project:
 ```
 $ mvn clean package
