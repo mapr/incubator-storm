@@ -1,3 +1,8 @@
+Build storm-hbase jar from https://github.com/ptgoetz/storm-hbase and add to project (check the version)
+```
+mvn install:install-file -Dfile=storm-hbase-0.1.3-SNAPSHOT.jar -DgroupId=com.github.ptgoetz -DartifactId=storm-hbase -Dversion=0.1.3 -Dpackaging=jar
+```
+
 Build project:
 ```
 $ mvn clean package
