@@ -31,7 +31,6 @@ ROW                                                                  COLUMN+CELL
  ```
  Please do the same for MaprDB tables. Please replace table name 'WordCount' to '/WordCount'.
  
- ```
  HBase and MaprDB spout examples:
  1. Generate dummy data and store to the table(hbase or maprdb):
  ```
