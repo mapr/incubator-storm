@@ -27,8 +27,6 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
-import org.apache.storm.hbase.bolt.HBaseBolt;
-import org.apache.storm.hbase.bolt.mapper.SimpleHBaseMapper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,35 +41,24 @@ public class PersistentWordCount {
         Config config = new Config();
 
         Map<String, Object> hbConf = new HashMap<String, Object>();
-        hbConf.put("hbase.zookeeper.property.clientPort", new Integer(5181));
+        hbConf.put("hbase.zookeeper.property.clientPort", 5181);
         hbConf.put("hbase.rootdir", "maprfs:///hbase");
-
-        if (args.length == 1) {
-            hbConf.put("hbase.rootdir", args[0]);
-        }
-
-        config.put("hbase.conf", hbConf);
+        config.put(HBaseBolt.CONFIG_KEY, hbConf);
 
         WordSpout spout = new WordSpout();
         WordCounter bolt = new WordCounter();
-
-        SimpleHBaseMapper mapper = new SimpleHBaseMapper()
-                .withRowKeyField("word")
-                .withColumnFields(new Fields("word"))
-                .withCounterFields(new Fields("count"))
-                .withColumnFamily("cf");
-
-        HBaseBolt hbase = new HBaseBolt("WordCount", mapper)
-                .withConfigKey("hbase.conf");
-
-
+        if (args.length == 0) {
+            System.out.println("Please, set table name.");
+            return;
+        }
+        String tableName = args[0];
+        HBaseBolt hbase = new HBaseBolt(tableName);
         // wordSpout ==> countBolt ==> HBaseBolt
         TopologyBuilder builder = new TopologyBuilder();
 
         builder.setSpout(WORD_SPOUT, spout, 1);
         builder.setBolt(COUNT_BOLT, bolt, 1).shuffleGrouping(WORD_SPOUT);
         builder.setBolt(HBASE_BOLT, hbase, 1).fieldsGrouping(COUNT_BOLT, new Fields("word"));
-
 
         if (args.length == 1) {
             LocalCluster cluster = new LocalCluster();

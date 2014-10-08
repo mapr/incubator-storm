@@ -1,8 +1,3 @@
-Build storm-hbase jar from https://github.com/ptgoetz/storm-hbase and add to project (check the version)
-```
-mvn install:install-file -Dfile=storm-hbase-0.1.3-SNAPSHOT.jar -DgroupId=com.github.ptgoetz -DartifactId=storm-hbase -Dversion=0.1.3 -Dpackaging=jar
-```
-
 Build project:
 ```
 $ mvn clean package
@@ -15,19 +10,24 @@ Use the `hbase shell` command to create the schema:
 
 Run the 
 ```
-storm jar stormHBaseTest-1.0-SNAPSHOT-jar-with-dependencies.jar -cp "stormHBaseTest-1.0-SNAPSHOT-jar-with-dependencies.jar:/opt/mapr/lib/*" storm.example.PersistentWordCount maprfs:///hbase
+storm jar storm-maprdbtable-tests-1.0-jar-with-dependencies.jar storm.example.PersistentWordCount WordCount hbase-example
 ```
-(it will run the topology for 10 seconds, then exit).
 
-After (or while) the word count topology is running, run the 
+Use the `hbase shell` to check data at table.
 ```
-java -cp 'stormHBaseTest-1.0-SNAPSHOT-jar-with-dependencies.jar' storm.example.WordCountClient
-```
-to view the counter values stored in HBase. You should see something like to following:
-```
-Word: 'apple', Count: 6867
-Word: 'orange', Count: 6645
-Word: 'pineapple', Count: 6954
-Word: 'banana', Count: 6787
-Word: 'watermelon', Count: 6806
-```
+hbase(main):012:0> scan 'z'
+ROW                                                                  COLUMN+CELL
+ apple                                                               column=cf:count, timestamp=1412767233223, value=\x00\x00\x00\x00\x00\x00\x0C\xD3
+ apple                                                               column=cf:name, timestamp=1412767233222, value=apple
+ banana                                                              column=cf:count, timestamp=1412767233227, value=\x00\x00\x00\x00\x00\x00\x0C\xA6
+ banana                                                              column=cf:name, timestamp=1412767233223, value=banana
+ orange                                                              column=cf:count, timestamp=1412767233216, value=\x00\x00\x00\x00\x00\x00\x0C\x98
+ orange                                                              column=cf:name, timestamp=1412767233216, value=orange
+ pineapple                                                           column=cf:count, timestamp=1412767233210, value=\x00\x00\x00\x00\x00\x00\x0C\xBB
+ pineapple                                                           column=cf:name, timestamp=1412767233210, value=pineapple
+ watermelon                                                          column=cf:count, timestamp=1412767233221, value=\x00\x00\x00\x00\x00\x00\x0C\xB7
+ watermelon
+ ```
+ ```
+ ```
+ Please do the same for MaprDB tables. Please replace table name 'WordCount' to '/WordCount'.
