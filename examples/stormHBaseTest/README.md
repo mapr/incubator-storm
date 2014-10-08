@@ -14,6 +14,7 @@ storm jar storm-maprdbtable-tests-1.0-jar-with-dependencies.jar storm.example.Pe
 ```
 
 Use the `hbase shell` to check data at table.
+
 ```
 hbase(main):012:0> scan 'z'
 ROW                                                                  COLUMN+CELL
@@ -28,6 +29,16 @@ ROW                                                                  COLUMN+CELL
  watermelon                                                          column=cf:count, timestamp=1412767233221, value=\x00\x00\x00\x00\x00\x00\x0C\xB7
  watermelon
  ```
- ```
- ```
  Please do the same for MaprDB tables. Please replace table name 'WordCount' to '/WordCount'.
+ 
+ ```
+ HBase and MaprDB spout examples:
+ 1. Generate dummy data and store to the table(hbase or maprdb):
+ ```
+ java -cp /tmp/storm-maprdbtable-tests-1.0-jar-with-dependencies.jar storm.example.TableValuesGenerator /WordCount
+ ```
+ 
+ 2. Run:
+ ```
+ storm jar storm-maprdbtable-tests-1.0-jar-with-dependencies.jar storm.example.SpoutHbaseTopology /WordCount maprdb-spout
+ ```
