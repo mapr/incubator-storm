@@ -8,7 +8,7 @@ Run producer with stream of data:
 (for ((i=0; ; i++)); do sleep 1; echo "message #"$i; done;) | bin/kafka-console-producer.sh --broker-list localhost:9092 --topic ololo
 ```
 
-Test Storm with RabbitMQ
+Test Storm with Kafka
 ========================
 
 Build project:
