@@ -56,7 +56,7 @@ public class HBaseBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple input) {
-        List<Mutation> mutations = new ArrayList(2);
+        List mutations = new ArrayList(2);
         String word = input.getStringByField("word");
         int count = input.getIntegerByField("count");
         byte[] row = word.getBytes();
@@ -69,7 +69,6 @@ public class HBaseBolt extends BaseRichBolt {
         mutations.add(put);
         Increment increment = new Increment(row);
         increment.addColumn(cf, ccount, count);
-        increment.setDurability(Durability.SYNC_WAL);
         mutations.add(increment);
         batchMutate(mutations);
     }
