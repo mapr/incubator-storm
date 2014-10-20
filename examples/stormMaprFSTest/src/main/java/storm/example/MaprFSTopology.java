@@ -20,7 +20,7 @@ import java.io.OutputStreamWriter;
 public class MaprFSTopology {
     public static final Logger LOG = LoggerFactory.getLogger(MaprFSTopology.class);
     private static final String FILE_NAME = "test_10000.txt";
-    private static final String DEFAULT_MAPRFS_PATH = "maprfs:///" + FILE_NAME;
+    private static final String DEFAULT_MAPRFS_PATH = "/" + FILE_NAME;
 
     public static void main(String[] args) throws Exception {
         TopologyBuilder builder = new TopologyBuilder();
