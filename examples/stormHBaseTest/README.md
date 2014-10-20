@@ -45,3 +45,45 @@ ROW                                                                  COLUMN+CELL
  ```
  storm jar storm-maprdbtable-tests-1.0-jar-with-dependencies.jar storm.example.SpoutHbaseTopology /WordCount maprdb-spout
  ```
+
+Work with HBase 0.94
+=====================
+
+In `pom.xml` uncomment following lines:
+```
+        <!--=== For HBase 0.94 ====-->
+        <!--      <dependency>
+                  <groupId>org.apache.hbase</groupId>
+                  <artifactId>hbase</artifactId>
+                  <version>0.94.17-mapr-1403-m7-3.1.1</version>
+                  <exclusions>
+                      <exclusion>
+                          <groupId>org.slf4j</groupId>
+                          <artifactId>slf4j-log4j12</artifactId>
+                      </exclusion>
+                  </exclusions>
+              </dependency>
+        
+              <dependency>
+                  <groupId>org.json</groupId>
+                  <artifactId>json</artifactId>
+                  <version>20090211</version>
+              </dependency>-->
+        <!--===========-->
+```
+
+And comment out the following lines:
+```
+      <dependency>
+          <groupId>org.apache.hbase</groupId>
+          <artifactId>hbase-client</artifactId>
+          <version>0.98.4-mapr-1408-m7-4.0.1</version>
+          <exclusions>
+              <exclusion>
+                  <groupId>org.slf4j</groupId>
+                  <artifactId>slf4j-log4j12</artifactId>
+              </exclusion>
+          </exclusions>
+      </dependency>
+```
+

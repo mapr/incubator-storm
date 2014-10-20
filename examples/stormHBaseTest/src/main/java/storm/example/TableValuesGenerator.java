@@ -27,7 +27,7 @@ public class TableValuesGenerator {
             if ((i+1)%(n/10) == 0) System.out.println(100*(i+1)/n +"% is generate.");
         }
         System.out.println("Data is recording to the table.");
-        table.processBatch(puts, new Object[n]);
+        table.batch(puts, new Object[n]);;
         System.out.println("Recorded successfully.");
         table.close();
     }
