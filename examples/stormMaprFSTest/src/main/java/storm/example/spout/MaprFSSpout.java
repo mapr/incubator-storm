@@ -1,4 +1,4 @@
-package main.java.storm.example.spout;
+package storm.example.spout;
 
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -7,14 +7,14 @@ import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -25,6 +25,7 @@ public class MaprFSSpout extends BaseRichSpout {
     private BlockingQueue<String> bq = new LinkedBlockingDeque<String>();
     private BufferedReader br;
     public String fsPath;
+    public static final String TEXT = "text";
 
     public MaprFSSpout(String maprfsPath) {
         this.fsPath = maprfsPath;
@@ -33,36 +34,50 @@ public class MaprFSSpout extends BaseRichSpout {
     @Override
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
         this.collector = collector;
-        FileSystem fs = null;
-        Configuration configuration = new Configuration();
-        try {
-            fs = FileSystem.get(configuration);
-            br = new BufferedReader(new InputStreamReader(fs.open(new Path(fsPath))));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        new Thread() {
-            @Override
-            public void run() {
-                String text = null;
+        runEmmiter();
+    }
+
+    private void runEmmiter() {
+        new MaprFSTailReader().start();
+    }
+
+    class MaprFSTailReader extends Thread {
+        @Override
+        public void run() {
+            FileSystem srcFs = null;
+            try {
+                srcFs = FileSystem.get(new Configuration());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Path path = new Path(fsPath);
+            long offset =  0;
+            while (true) {
                 try {
-                    text = br.readLine();
-                    while (text != null) {
-                        bq.offer(text);
-                        text = br.readLine();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                finally {
-                    try {
-                        br.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    FSDataInputStream in = srcFs.open(path);
+                    long size = srcFs.getFileStatus(path).getLen() - offset;
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream((int) size);
+                    in.seek(offset);
+                    IOUtils.copyBytes(in, baos, 1024, false);
+                    offset = in.getPos();
+                    in.close();
+                    InputStream is = new ByteArrayInputStream(baos.toByteArray());
+                    BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                    String line;
+                    do {
+                        line = br.readLine();
+                        if (line == null) break;
+                        bq.offer(line);
+                    } while (true);
+
+                    long fileSize = srcFs.getFileStatus(path).getLen();
+                    offset = (fileSize > offset) ? offset: fileSize;
+                    Thread.sleep(2000);
+                } catch (Exception e) {
+                    break;
                 }
             }
-        }.start();
+        }
     }
 
     @Override
@@ -74,17 +89,7 @@ public class MaprFSSpout extends BaseRichSpout {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields(fsPath));
+        declarer.declare(new Fields(TEXT));
     }
 
-    @Override
-    public void ack(Object msgId) {
-        LOG.info("Complete processing: " + (String) msgId);
-        //TODO: persist the msgId to keep track
-    }
-
-    @Override
-    public void fail(Object msgId) {
-        LOG.error("Fail processing: " + (String) msgId);
-    }
 }

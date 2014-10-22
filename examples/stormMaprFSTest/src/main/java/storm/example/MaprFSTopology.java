@@ -1,46 +1,41 @@
-package main.java.storm.example;
+package storm.example;
 
-import backtype.storm.Config;
-import backtype.storm.LocalCluster;
-import backtype.storm.StormSubmitter;
-import backtype.storm.topology.TopologyBuilder;
+import backtype.storm.*;
+import backtype.storm.topology.*;
 import backtype.storm.utils.Utils;
-import main.java.storm.example.bolt.OutputBolt;
-import main.java.storm.example.spout.MaprFSSpout;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.hadoop.io.IOUtils;
+import storm.example.bolt.OutputBolt;
+import storm.example.spout.MaprFSSpout;
 
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
+import java.nio.Buffer;
+import java.util.Map;
+import java.util.Scanner;
 
 public class MaprFSTopology {
-    public static final Logger LOG = LoggerFactory.getLogger(MaprFSTopology.class);
-    private static final String FILE_NAME = "test_10000.txt";
-    private static final String DEFAULT_MAPRFS_PATH = "/" + FILE_NAME;
 
     public static void main(String[] args) throws Exception {
+        if (args.length == 0) {
+            System.out.println("Please provide file name");
+            return;
+        }
         TopologyBuilder builder = new TopologyBuilder();
-        MaprFSSpout spout;
-        OutputBolt bolt;
         Config conf = new Config();
 
         conf.setDebug(true);
-        // never timeout
-        conf.setMessageTimeoutSecs(Integer.MAX_VALUE);
-        prepareForTesting();
-        spout = new MaprFSSpout(DEFAULT_MAPRFS_PATH);
-        bolt = new OutputBolt();
+        IRichSpout spout = new MaprFSSpout(args[0]);
+        IRichBolt bolt = new OutputBolt();
 
-        builder.setSpout("maprfs", spout, 1);
-        builder.setBolt("import", bolt, 1).shuffleGrouping("maprfs");
+        builder.setSpout("maprfs-reader", spout, 1);
+        builder.setBolt("output", bolt, 1).shuffleGrouping("maprfs-reader");
 
-        if(args!=null && args.length >= 1) {
+        if(args.length >= 2) {
             conf.setNumWorkers(3);
-            StormSubmitter.submitTopology(args[0], conf, builder.createTopology());
+            StormSubmitter.submitTopology(args[1], conf, builder.createTopology());
         } else {
             LocalCluster cluster = new LocalCluster();
             cluster.submitTopology("test", conf, builder.createTopology());
@@ -50,26 +45,4 @@ public class MaprFSTopology {
         }
     }
 
-    private static void prepareForTesting(){
-        Configuration conf = new Configuration();
-        try {
-            FileSystem fs = FileSystem.get(conf);
-            Path confDst1 = new Path(DEFAULT_MAPRFS_PATH);
-            if(!fs.exists(confDst1)){
-                FSDataOutputStream out = fs.create(confDst1);
-                OutputStreamWriter writer = new OutputStreamWriter(out);
-                LOG.info("File " + FILE_NAME + " created in maprfs");
-                for(int i = 0; i < 9999; i++){
-                    writer.write( i + " line\n");
-                }
-                writer.write("END\n");
-                writer.close();
-                out.close();
-            } else {
-                LOG.info("File " + FILE_NAME + " already exists in maprfs");
-            }
-        } catch (IOException e){
-            e.printStackTrace();
-        }
-    }
 }

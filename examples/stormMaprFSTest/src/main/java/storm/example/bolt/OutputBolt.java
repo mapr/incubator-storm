@@ -1,4 +1,4 @@
-package main.java.storm.example.bolt;
+package storm.example.bolt;
 
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
