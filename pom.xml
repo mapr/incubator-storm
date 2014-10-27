@@ -214,7 +214,6 @@
         <thrift.version>0.9.2</thrift.version>
         <junit.version>4.11</junit.version>
     </properties>
-
     <modules>
         <module>storm-multilang/javascript</module>
         <module>storm-multilang/python</module>
@@ -232,9 +231,43 @@
         <module>external/flux</module>
         <module>examples/storm-starter</module>
     </modules>
-
-
+    <distributionManagement>
+        <repository>
+            <id>${release-repo-id}</id>
+            <name>${release-repo-name}</name>
+            <url>${release-repo-url}</url>
+        </repository>
+        <snapshotRepository>
+            <id>mapr.snapshots</id>
+            <name>${distMgmtSnapshotsName}</name>
+            <url>${distMgmtSnapshotsUrl}</url>
+        </snapshotRepository>
+    </distributionManagement>
     <profiles>
+        <profile>
+            <id>deployReleasesToApache</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <release-repo-id>apache.staging.https</release-repo-id>
+                <release-repo-name>Apache Release Distribution Repository</release-repo-name>
+                <release-repo-url>https://repository.apache.org/service/local/staging/deploy/maven2</release-repo-url>
+            </properties>
+        </profile>
+        <profile>
+            <id>deployReleasesToMapr</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <release-repo-id>mapr.staging.https</release-repo-id>
+                <release-repo-name>MapR Release Repo</release-repo-name>
+                <release-repo-url>${env.MAPR_MAVEN_REPO}</release-repo-url>
+            </properties>
+        </profile>
+
+
         <profile>
             <id>sign</id>
             <build>
