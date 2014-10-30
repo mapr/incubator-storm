@@ -22,12 +22,12 @@ import java.io.IOException;
  * Created by nikita on 19.09.14.
  */
 public class RabbitMqTestTopology {
-    private final static String QUEUE_NAME = "hello";
     private final static String REMOTE_HOST = "localhost";
     private final static String RABBIT_SPOUT = "rabbitSpout";
     private final static String PRINT_BOLT = "printBolt";
 
     public static void main(String[] args) throws AlreadyAliveException, InvalidTopologyException {
+        String QUEUE_NAME = args[0];
         //=========Init queue=========
         try {
             ConnectionFactory factory = new ConnectionFactory();
@@ -66,11 +66,9 @@ public class RabbitMqTestTopology {
         builder.setBolt(PRINT_BOLT, new PrintBolt()).shuffleGrouping(RABBIT_SPOUT);
 
         Config config = new Config();
-        config.put("hbase.zookeeper.property.clientPort", new Integer(5181));
 
-
-        if (args != null && args.length > 0) {
-            StormSubmitter.submitTopologyWithProgressBar(args[0], config, builder.createTopology());
+        if (args != null && args.length > 1) {
+            StormSubmitter.submitTopologyWithProgressBar(args[1], config, builder.createTopology());
         } else {
             LocalCluster cluster = new LocalCluster();
             cluster.submitTopology("RabbitMqTestTopology", config, builder.createTopology());

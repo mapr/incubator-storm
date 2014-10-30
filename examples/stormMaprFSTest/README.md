@@ -6,6 +6,13 @@ $ mvn clean package
  
  MaprFS spout example:
  ==========================================
+ 
+ Run shell command:
  ```
-$ /opt/mapr/storm/storm-0.9.3/bin/storm jar /opt/mapr/storm/storm-0.9.3/examples/stormMaprFSTest/target/storm-maprfs-tests-1.0-jar-with-dependencies.jar main.java.storm.example.MaprFSTopology TestSpout
+ $ for ((i=0;;i++)); do (echo `date` " message $i" | hadoop fs -appendToFile - /test999.txt); sleep .5; done;
+ ```
+ 
+And submit topology:
+ ```
+$ storm jar /tmp/storm-maprfs-tests-1.0-jar-with-dependencies.jar storm.example.MaprFSTopology /test999.txt maprf-topology
  ```
