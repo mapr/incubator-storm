@@ -9,10 +9,10 @@ import com.rabbitmq.client.QueueingConsumer;
  * Created by nikita on 22.09.14.
  */
 public class Send {
-    private final static String QUEUE_NAME = "hello";
-    private final static String REMOTE_HOST = "localhost";
 
     public static void main(String[] argv) throws Exception {
+        String REMOTE_HOST = argv[0];
+        String QUEUE_NAME = argv[1];
 
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(REMOTE_HOST);
@@ -21,10 +21,7 @@ public class Send {
 
         channel.queueDeclare(QUEUE_NAME, false, false, false, null);
 
-        String message = "Hello World!";
-        if (argv.length == 1) {
-            message = argv[0];
-        }
+        String message = argv[2];
         channel.basicPublish("", QUEUE_NAME, null, message.getBytes());
         System.out.println(" [>] Sent '" + message + "'");
 

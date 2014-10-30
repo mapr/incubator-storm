@@ -9,11 +9,10 @@ import com.rabbitmq.client.QueueingConsumer;
  * Created by nikita on 22.09.14.
  */
 public class Receive {
-    private final static String QUEUE_NAME = "hello";
     private final static String REMOTE_HOST = "localhost";
 
     public static void main(String[] argv) throws Exception {
-
+        String QUEUE_NAME = argv[0];
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(REMOTE_HOST);
         Connection connection = factory.newConnection();
