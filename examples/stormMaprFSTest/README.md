@@ -14,5 +14,5 @@ $ mvn clean package
  
 And submit topology:
  ```
-$ storm jar /tmp/storm-maprfs-tests-1.0-jar-with-dependencies.jar storm.example.MaprFSTopology /test999.txt maprf-topology
+$ storm jar storm-maprfs-tests-1.0-jar-with-dependencies.jar storm.example.MaprFSTopology /test999.txt maprf-topology
  ```
