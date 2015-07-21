@@ -53,6 +53,7 @@ public class HiveBolt extends  BaseRichBolt {
     private static final Logger LOG = LoggerFactory.getLogger(HiveBolt.class);
     private OutputCollector collector;
     private HiveOptions options;
+    private Integer currentBatchSize;
     private ExecutorService callTimeoutPool;
     private transient Timer heartBeatTimer;
     private Boolean kerberosEnabled = false;
@@ -208,7 +209,7 @@ public class HiveBolt extends  BaseRichBolt {
         }
     }
 
-    void flushAllWriters(boolean rollToNext)
+    private void flushAllWriters(boolean rollToNext)
         throws HiveWriter.CommitFailure, HiveWriter.TxnBatchFailure, HiveWriter.TxnFailure, InterruptedException {
         for(HiveWriter writer: allWriters.values()) {
             writer.flush(rollToNext);
@@ -232,7 +233,7 @@ public class HiveBolt extends  BaseRichBolt {
         }
     }
 
-    void flushAndCloseWriters() throws Exception {
+    private void flushAndCloseWriters() {
         try {
             flushAllWriters(false);
         } catch(Exception e) {
