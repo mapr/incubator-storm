@@ -53,7 +53,6 @@ public class HiveBolt extends  BaseRichBolt {
     private static final Logger LOG = LoggerFactory.getLogger(HiveBolt.class);
     private OutputCollector collector;
     private HiveOptions options;
-    private Integer currentBatchSize;
     private ExecutorService callTimeoutPool;
     private transient Timer heartBeatTimer;
     private Boolean kerberosEnabled = false;
@@ -102,24 +101,16 @@ public class HiveBolt extends  BaseRichBolt {
     @Override
     public void execute(Tuple tuple) {
         try {
-            boolean forceFlush = false;
-            if (TupleUtils.isTick(tuple)) {
-                LOG.debug("TICK received! current batch status [" + tupleBatch.size() + "/" + options.getBatchSize() + "]");
-                forceFlush = true;
+            List<String> partitionVals = options.getMapper().mapPartitions(tuple);
+            HiveEndPoint endPoint = HiveUtils.makeEndPoint(partitionVals, options);
+            HiveWriter writer = getOrCreateWriter(endPoint);
+            if(timeToSendHeartBeat.compareAndSet(true, false)) {
+                enableHeartBeatOnAllWriters();
             }
-            else {
-                List<String> partitionVals = options.getMapper().mapPartitions(tuple);
-                HiveEndPoint endPoint = HiveUtils.makeEndPoint(partitionVals, options);
-                HiveWriter writer = getOrCreateWriter(endPoint);
-                if (timeToSendHeartBeat.compareAndSet(true, false)) {
-                    enableHeartBeatOnAllWriters();
-                }
-                writer.write(options.getMapper().mapRecord(tuple));
-                tupleBatch.add(tuple);
-                if (tupleBatch.size() >= options.getBatchSize())
-                    forceFlush = true;
-            }
-            if(forceFlush && !tupleBatch.isEmpty()) {
+            writer.write(options.getMapper().mapRecord(tuple));
+
+            tupleBatch.add(tuple);
+            if(tupleBatch.size() >= options.getBatchSize()) {
                 flushAllWriters(true);
                 LOG.info("acknowledging tuples after writers flushed ");
                 for(Tuple t : tupleBatch)
@@ -209,7 +200,7 @@ public class HiveBolt extends  BaseRichBolt {
         }
     }
 
-    private void flushAllWriters(boolean rollToNext)
+    void flushAllWriters(boolean rollToNext)
         throws HiveWriter.CommitFailure, HiveWriter.TxnBatchFailure, HiveWriter.TxnFailure, InterruptedException {
         for(HiveWriter writer: allWriters.values()) {
             writer.flush(rollToNext);
@@ -233,7 +224,7 @@ public class HiveBolt extends  BaseRichBolt {
         }
     }
 
-    private void flushAndCloseWriters() {
+    void flushAndCloseWriters() throws Exception {
         try {
             flushAllWriters(false);
         } catch(Exception e) {
