@@ -1463,6 +1463,21 @@ public class Config extends HashMap<String, Object> {
     public static final String TOPOLOGY_DISRUPTOR_WAIT_TIMEOUT_MILLIS="topology.disruptor.wait.timeout.millis";
     public static final Object TOPOLOGY_DISRUPTOR_WAIT_TIMEOUT_MILLIS_SCHEMA = ConfigValidation.PositiveIntegerValidator;
 
+    /**
+     * Kafka spout config
+     * The time, in milliseconds, spent waiting in poll if data is not available. If 0, returns
+     *            immediately with any records available now. Must not be negative.
+     */
+    public static final String KAFKA_POLL_TIMEOUT = "kafka.poll.timeout";
+    public static final Object KAFKA_POLL_TIMEOUT_SCHEMA = Long.class;
+
+    /**
+     * Kafka spout config
+     * Maximum count of re-emit attempts per tuple. It decrements by each fail() method called with this tuple.
+     */
+    public static final String KAFKA_MAX_FAIL_ATTEMPTS_COUNT = "kafka.max.fails";
+    public static final Object KAFKA_MAX_FAIL_ATTEMPTS_COUNT_SCHEMA = Long.class;
+
     public static void setClasspath(Map conf, String cp) {
         conf.put(Config.TOPOLOGY_CLASSPATH, cp);
     }

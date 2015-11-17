@@ -15,16 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package storm.kafka.trident;
+package storm.kafka;
 
 import java.util.List;
-import java.util.Map;
+import backtype.storm.spout.Scheme;
 
-public interface IBrokerReader {
-
-    GlobalPartitionInformation getBrokerForTopic(String topic);
-
-    List<GlobalPartitionInformation> getAllBrokers();
-
-    void close();
+public interface MessageMetadataScheme extends Scheme {
+    public List<Object> deserializeMessageWithMetadata(byte[] message, Partition partition, long offset);
 }

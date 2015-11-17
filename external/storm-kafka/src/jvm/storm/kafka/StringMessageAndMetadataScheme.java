@@ -15,16 +15,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package storm.kafka.trident;
+package storm.kafka;
 
 import java.util.List;
-import java.util.Map;
 
-public interface IBrokerReader {
+import backtype.storm.tuple.Fields;
+import backtype.storm.tuple.Values;
 
-    GlobalPartitionInformation getBrokerForTopic(String topic);
+public class StringMessageAndMetadataScheme extends StringScheme implements MessageMetadataScheme {
+    private static final long serialVersionUID = -5441841920447947374L;
 
-    List<GlobalPartitionInformation> getAllBrokers();
+    public static final String STRING_SCHEME_PARTITION_KEY = "partition";
+    public static final String STRING_SCHEME_OFFSET = "offset";
 
-    void close();
+    @Override
+    public List<Object> deserializeMessageWithMetadata(byte[] message, Partition partition, long offset) {
+        String stringMessage = StringScheme.deserializeString(message);
+        return new Values(stringMessage, partition.partition, offset);
+    }
+
+    @Override
+    public Fields getOutputFields() {
+        return new Fields(STRING_SCHEME_KEY, STRING_SCHEME_PARTITION_KEY, STRING_SCHEME_OFFSET);
+    }
+
 }
