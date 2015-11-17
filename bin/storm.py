@@ -209,6 +209,27 @@ def exec_storm_class(klass, jvmtype="-server", jvmopts=[], extrajars=[], args=[]
     else:
         os.execvp(JAVA_CMD, all_args)
 
+import subprocess;
+def is_authorized():
+    if not is_secure_mode():
+        return True;
+    COMMAND = ['/opt/mapr/bin/maprlogin', 'authtest'];
+    try:
+        s = subprocess.Popen(COMMAND, stdout=subprocess.PIPE, stderr=subprocess.PIPE);
+        out, err = s.communicate();
+        return not err;
+    except Exception as ex:
+        return False;
+
+def is_secure_mode():
+    try:
+        ff = open('/opt/mapr/conf/mapr-clusters.conf');
+        line = ff.readlines()[0];
+        ff.close();
+        return ' secure=true ' in line;
+    except Exception:
+        return False;
+
 def jar(jarfile, klass, *args):
     """Syntax: [storm jar topology-jar-path class ...]
 
@@ -218,6 +239,10 @@ def jar(jarfile, klass, *args):
     (http://storm.incubator.apache.org/apidocs/backtype/storm/StormSubmitter.html)
     will upload the jar at topology-jar-path when the topology is submitted.
     """
+    if not is_authorized():
+        print 'User should be authorized!'
+        return;
+
     exec_storm_class(
         klass,
         jvmtype="-client",
