@@ -111,63 +111,63 @@
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../external/storm-hbase/target</directory>
-            <outputDirectory>external/storm-hbase</outputDirectory>
+            <outputDirectory>${storm.dir}/external/storm-hbase</outputDirectory>
             <includes>
                 <include>storm*jar</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../external/storm-hbase</directory>
-            <outputDirectory>external/storm-hbase</outputDirectory>
+            <outputDirectory>${storm.dir}/external/storm-hbase</outputDirectory>
             <includes>
                 <include>README.*</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../external/storm-jdbc/target</directory>
-            <outputDirectory>external/storm-jdbc</outputDirectory>
+            <outputDirectory>${storm.dir}/external/storm-jdbc</outputDirectory>
             <includes>
                 <include>storm*jar</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../external/storm-jdbc</directory>
-            <outputDirectory>external/storm-jdbc</outputDirectory>
+            <outputDirectory>${storm.dir}/external/storm-jdbc</outputDirectory>
             <includes>
                 <include>README.*</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../external/storm-hive/target</directory>
-            <outputDirectory>external/storm-hive</outputDirectory>
+            <outputDirectory>${storm.dir}/external/storm-hive</outputDirectory>
             <includes>
                 <include>storm*jar</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../external/storm-hive</directory>
-            <outputDirectory>external/storm-hive</outputDirectory>
+            <outputDirectory>${storm.dir}/external/storm-hive</outputDirectory>
             <includes>
                 <include>README.*</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../external/storm-eventhubs/target</directory>
-            <outputDirectory>external/storm-eventhubs</outputDirectory>
+            <outputDirectory>${storm.dir}/external/storm-eventhubs</outputDirectory>
             <includes>
                 <include>storm*jar</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../external/storm-eventhubs</directory>
-            <outputDirectory>external/storm-eventhubs</outputDirectory>
+            <outputDirectory>${storm.dir}/external/storm-eventhubs</outputDirectory>
             <includes>
                 <include>README.*</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../external/storm-eventhubs/src/main/resources</directory>
-            <outputDirectory>external/storm-eventhubs</outputDirectory>
+            <outputDirectory>${storm.dir}/external/storm-eventhubs</outputDirectory>
             <includes>
                 <include>Config.properties</include>
             </includes>
@@ -175,56 +175,56 @@
 
         <fileSet>
             <directory>${project.basedir}/../../external/flux/flux-core/target</directory>
-            <outputDirectory>external/flux</outputDirectory>
+            <outputDirectory>${storm.dir}/external/flux</outputDirectory>
             <includes>
                 <include>flux*jar</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../external/flux/flux-wrappers/target</directory>
-            <outputDirectory>external/flux</outputDirectory>
+            <outputDirectory>${storm.dir}/external/flux</outputDirectory>
             <includes>
                 <include>flux*jar</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../external/flux/flux-examples/target</directory>
-            <outputDirectory>external/flux</outputDirectory>
+            <outputDirectory>${storm.dir}/external/flux</outputDirectory>
             <includes>
                 <include>flux*jar</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../external/flux/flux-examples</directory>
-            <outputDirectory>external/flux/examples</outputDirectory>
+            <outputDirectory>${storm.dir}/external/flux/examples</outputDirectory>
             <includes>
                 <include>README.*</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../external/flux/flux-examples/src/main/resources</directory>
-            <outputDirectory>external/flux/examples</outputDirectory>
+            <outputDirectory>${storm.dir}/external/flux/examples</outputDirectory>
             <includes>
                 <include>*</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../external/flux</directory>
-            <outputDirectory>external/flux</outputDirectory>
+            <outputDirectory>${storm.dir}/external/flux</outputDirectory>
             <includes>
                 <include>README.*</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../external/storm-redis/target</directory>
-            <outputDirectory>external/storm-redis</outputDirectory>
+            <outputDirectory>${storm.dir}/external/storm-redis</outputDirectory>
             <includes>
                 <include>storm*jar</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../../external/storm-redis</directory>
-            <outputDirectory>external/storm-redis</outputDirectory>
+            <outputDirectory>${storm.dir}/external/storm-redis</outputDirectory>
             <includes>
                 <include>README.*</include>
             </includes>
@@ -234,7 +234,7 @@
         <!-- $STORM_HOME/extlib -->
         <fileSet>
             <directory></directory>
-            <outputDirectory>extlib</outputDirectory>
+            <outputDirectory>${storm.dir}/extlib</outputDirectory>
             <includes>
                 <include></include>
             </includes>
@@ -242,7 +242,7 @@
         <!-- $STORM_HOME/extlib-daemon, for daemons only -->
         <fileSet>
             <directory></directory>
-            <outputDirectory>extlib-daemon</outputDirectory>
+            <outputDirectory>${storm.dir}/extlib-daemon</outputDirectory>
             <includes>
                 <include></include>
             </includes>
@@ -253,7 +253,7 @@
     <files>
         <!-- EXAMPLES -->
         <file>
-            <source>${project.basedir}/../../examples/storm-starter/target/storm-starter-${project.version}-jar-with-dependencies.jar</source>
+            <source>${project.basedir}/../../examples/storm-starter/target/storm-starter-${project.version}.jar</source>
             <outputDirectory>${storm.dir}/examples/storm-starter/</outputDirectory>
             <destName>storm-starter-topologies-${project.version}.jar</destName>
         </file>
@@ -275,11 +275,11 @@
         <!-- TODO this should be a generated file from "target" -->
         <file>
             <source>${project.basedir}/../../log4j2/cluster.xml</source>
-            <outputDirectory>/log4j2</outputDirectory>
+            <outputDirectory>${storm.dir}/log4j2</outputDirectory>
         </file>
         <file>
             <source>${project.basedir}/../../log4j2/worker.xml</source>
-            <outputDirectory>/log4j2</outputDirectory>
+            <outputDirectory>${storm.dir}/log4j2</outputDirectory>
         </file>
         <file>
             <source>${project.basedir}/../../VERSION</source>

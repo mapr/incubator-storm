@@ -44,8 +44,8 @@ public class ExponentialBackoffMsgRetryManager implements FailedMsgRetryManager 
     public void failed(Long offset) {
         MessageRetryRecord oldRecord = this.records.get(offset);
         MessageRetryRecord newRecord = oldRecord == null ?
-                new MessageRetryRecord(offset) :
-                oldRecord.createNextRetryRecord();
+                                       new MessageRetryRecord(offset) :
+                                       oldRecord.createNextRetryRecord();
         this.records.put(offset, newRecord);
         this.waiting.add(newRecord);
     }
@@ -95,7 +95,7 @@ public class ExponentialBackoffMsgRetryManager implements FailedMsgRetryManager 
 
     @Override
     public Set<Long> clearInvalidMessages(Long kafkaOffset) {
-        Set<Long> invalidOffsets = new HashSet<Long>();
+        Set<Long> invalidOffsets = new HashSet<Long>(); 
         for(Long offset : records.keySet()){
             if(offset < kafkaOffset){
                 MessageRetryRecord record = this.records.remove(offset);
@@ -152,8 +152,8 @@ public class ExponentialBackoffMsgRetryManager implements FailedMsgRetryManager 
             double delay = retryInitialDelayMs * delayMultiplier;
             Long maxLong = Long.MAX_VALUE;
             long delayThisRetryMs = delay >= maxLong.doubleValue()
-                    ?  maxLong
-                    : (long) delay;
+                                    ?  maxLong
+                                    : (long) delay;
             return Math.min(delayThisRetryMs, retryDelayMaxMs);
         }
 

@@ -33,8 +33,8 @@ import kafka.message.MessageAndOffset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import storm.kafka.KafkaSpout.EmitState;
-import storm.kafka.KafkaSpout.MessageAndRealOffset;
+import storm.kafka.KafkaSpoutOld.EmitState;
+import storm.kafka.KafkaSpoutOld.MessageAndRealOffset;
 import storm.kafka.trident.MaxMetric;
 
 import java.util.*;
@@ -73,8 +73,8 @@ public class PartitionManager {
         numberAcked = numberFailed = 0;
 
         _failedMsgRetryManager = new ExponentialBackoffMsgRetryManager(_spoutConfig.retryInitialDelayMs,
-                _spoutConfig.retryDelayMultiplier,
-                _spoutConfig.retryDelayMaxMs);
+                                                                           _spoutConfig.retryDelayMultiplier,
+                                                                           _spoutConfig.retryDelayMaxMs);
 
         String jsonTopologyId = null;
         Long jsonOffset = null;
@@ -147,7 +147,7 @@ public class PartitionManager {
             } else {
                 tups = KafkaUtils.generateTuples(_spoutConfig, toEmit.msg, _partition.topic);
             }
-
+            
             if ((tups != null) && tups.iterator().hasNext()) {
                 if(_spoutConfig.topicAsStreamId) {
                     for (List<Object> tup : tups) {
@@ -189,7 +189,7 @@ public class PartitionManager {
             _emittedToOffset = KafkaUtils.getOffset(_consumer, _partition.topic, _partition.partition, kafka.api.OffsetRequest.EarliestTime());
             LOG.warn("{} Using new offset: {}", _partition.partition, _emittedToOffset);
             // fetch failed, so don't update the metrics
-
+            
             //fix bug [STORM-643] : remove outdated failed offsets
             if (!processingNewTuples) {
                 // For the case of EarliestTime it would be better to discard
@@ -197,10 +197,10 @@ public class PartitionManager {
                 // offset, since they are anyway not there.
                 // These calls to broker API will be then saved.
                 Set<Long> omitted = this._failedMsgRetryManager.clearInvalidMessages(_emittedToOffset);
-
+                
                 LOG.warn("Removing the failed offsets that are out of range: {}", omitted);
             }
-
+            
             return;
         }
         long end = System.nanoTime();

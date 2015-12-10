@@ -32,7 +32,7 @@ public class Partition implements ISpoutPartition {
 
     // for kryo compatibility
     private Partition() {
-
+	
     }
     public Partition(Broker host, String topic, int partition) {
         this.topic = topic;
@@ -40,7 +40,7 @@ public class Partition implements ISpoutPartition {
         this.partition = partition;
         this.bUseTopicNameForPartitionPathId = false;
     }
-
+    
     public Partition(Broker host, String topic, int partition,Boolean bUseTopicNameForPartitionPathId) {
         this.topic = topic;
         this.host = host;

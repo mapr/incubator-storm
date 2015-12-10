@@ -86,7 +86,10 @@ CONFFILE = ""
 JAR_JVM_OPTS = shlex.split(os.getenv('STORM_JAR_JVM_OPTS', ''))
 JAVA_HOME = os.getenv('JAVA_HOME', None)
 JAVA_CMD = 'java' if not JAVA_HOME else os.path.join(JAVA_HOME, 'bin', 'java')
-STORM_EXT_CLASSPATH = os.getenv('STORM_EXT_CLASSPATH', None)
+STORM_EXT_CLASSPATH = os.getenv('STORM_EXT_CLASSPATH', '')
+STORM_EXT_CLASSPATH = STORM_EXT_CLASSPATH +  ":" + os.getenv('MARLIN_CLASSPATH', '')
+if STORM_EXT_CLASSPATH == ':':
+    STORM_EXT_CLASSPATH = None
 STORM_EXT_CLASSPATH_DAEMON = os.getenv('STORM_EXT_CLASSPATH_DAEMON', None)
 
 def get_config_opts():
@@ -105,7 +108,7 @@ def get_jars_full(adir):
     if os.path.isdir(adir):
         files = os.listdir(adir)
     elif os.path.exists(adir):
-        files = [aidr]
+        files = [adir]
 
     ret = []
     for f in files:

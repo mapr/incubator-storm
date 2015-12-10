@@ -20,7 +20,6 @@ package storm.kafka.trident;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.topology.FailedException;
 import org.apache.commons.lang.Validate;
-import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -33,13 +32,12 @@ import storm.trident.state.State;
 import storm.trident.tuple.TridentTuple;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public class TridentKafkaState implements State {
     private static final Logger LOG = LoggerFactory.getLogger(TridentKafkaState.class);
-
-    public static final String KAFKA_BROKER_PROPERTIES = "kafka.broker.properties";
 
     private KafkaProducer producer;
     private OutputCollector collector;
@@ -67,33 +65,37 @@ public class TridentKafkaState implements State {
         LOG.debug("commit is Noop.");
     }
 
-    public void prepare(Map stormConf) {
+    public void prepare(Properties options) {
         Validate.notNull(mapper, "mapper can not be null");
         Validate.notNull(topicSelector, "topicSelector can not be null");
-        Map configMap = (Map) stormConf.get(KAFKA_BROKER_PROPERTIES);
-        Properties properties = new Properties();
-        properties.putAll(configMap);
-        producer = new KafkaProducer(properties);
+        producer = new KafkaProducer(options);
     }
 
     public void updateState(List<TridentTuple> tuples, TridentCollector collector) {
-        for (final TridentTuple tuple : tuples) {
-            final String topic = topicSelector.getTopic(tuple);
-            if(topic != null) {
-                producer.send(new ProducerRecord(topic, mapper.getKeyFromTuple(tuple),
-                        mapper.getMessageFromTuple(tuple)),new Callback() {
-                    @Override
-                    public void onCompletion(RecordMetadata metadata, Exception ex) {
-                        if(ex != null){
-                            String errorMsg = "Could not send message with key = "
-                                    + mapper.getKeyFromTuple(tuple) + " to topic = " + topic;
-                            LOG.warn(errorMsg, ex);
-                            throw new FailedException(errorMsg, ex);
-                        }
+        String topic = null;
+        for (TridentTuple tuple : tuples) {
+            try {
+                topic = topicSelector.getTopic(tuple);
+
+                if(topic != null) {
+                    Future<RecordMetadata> result = producer.send(new ProducerRecord(topic,
+                            mapper.getKeyFromTuple(tuple), mapper.getMessageFromTuple(tuple)));
+                    try {
+                        result.get();
+                    } catch (ExecutionException e) {
+                        String errorMsg = "Could not retrieve result for message with key = "
+                                + mapper.getKeyFromTuple(tuple) + " from topic = " + topic;
+                        LOG.error(errorMsg, e);
+                        throw new FailedException(errorMsg, e);
                     }
-                });
-            } else {
-                LOG.warn("skipping key = " + mapper.getKeyFromTuple(tuple) + ", topic selector returned null.");
+                } else {
+                    LOG.warn("skipping key = " + mapper.getKeyFromTuple(tuple) + ", topic selector returned null.");
+                }
+            } catch (Exception ex) {
+                String errorMsg = "Could not send message with key = " + mapper.getKeyFromTuple(tuple)
+                        + " to topic = " + topic;
+                LOG.warn(errorMsg, ex);
+                throw new FailedException(errorMsg, ex);
             }
         }
     }

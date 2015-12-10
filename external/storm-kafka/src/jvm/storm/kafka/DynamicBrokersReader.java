@@ -75,33 +75,33 @@ public class DynamicBrokersReader {
      * Get all partitions with their current leaders
      */
     public List<GlobalPartitionInformation> getBrokerInfo() throws SocketTimeoutException {
-        List<String> topics =  getTopics();
-        List<GlobalPartitionInformation> partitions =  new ArrayList<GlobalPartitionInformation>();
+      List<String> topics =  getTopics();
+      List<GlobalPartitionInformation> partitions =  new ArrayList<GlobalPartitionInformation>();
 
-        for (String topic : topics) {
-            GlobalPartitionInformation globalPartitionInformation = new GlobalPartitionInformation(topic, this._isWildcardTopic);
-            try {
-                int numPartitionsForTopic = getNumPartitions(topic);
-                String brokerInfoPath = brokerPath();
-                for (int partition = 0; partition < numPartitionsForTopic; partition++) {
-                    int leader = getLeaderFor(topic,partition);
-                    String path = brokerInfoPath + "/" + leader;
-                    try {
-                        byte[] brokerData = _curator.getData().forPath(path);
-                        Broker hp = getBrokerHost(brokerData);
-                        globalPartitionInformation.addPartition(partition, hp);
-                    } catch (org.apache.zookeeper.KeeperException.NoNodeException e) {
-                        LOG.error("Node {} does not exist ", path);
-                    }
-                }
-            } catch (SocketTimeoutException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            LOG.info("Read partition info from zookeeper: " + globalPartitionInformation);
-            partitions.add(globalPartitionInformation);
-        }
+      for (String topic : topics) {
+          GlobalPartitionInformation globalPartitionInformation = new GlobalPartitionInformation(topic, this._isWildcardTopic);
+          try {
+              int numPartitionsForTopic = getNumPartitions(topic);
+              String brokerInfoPath = brokerPath();
+              for (int partition = 0; partition < numPartitionsForTopic; partition++) {
+                  int leader = getLeaderFor(topic,partition);
+                  String path = brokerInfoPath + "/" + leader;
+                  try {
+                      byte[] brokerData = _curator.getData().forPath(path);
+                      Broker hp = getBrokerHost(brokerData);
+                      globalPartitionInformation.addPartition(partition, hp);
+                  } catch (org.apache.zookeeper.KeeperException.NoNodeException e) {
+                      LOG.error("Node {} does not exist ", path);
+                  }
+              }
+          } catch (SocketTimeoutException e) {
+              throw e;
+          } catch (Exception e) {
+              throw new RuntimeException(e);
+          }
+          LOG.info("Read partition info from zookeeper: " + globalPartitionInformation);
+          partitions.add(globalPartitionInformation);
+      }
         return partitions;
     }
 

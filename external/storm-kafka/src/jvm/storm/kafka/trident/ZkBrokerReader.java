@@ -65,9 +65,9 @@ public class ZkBrokerReader implements IBrokerReader {
 	@Override
 	public GlobalPartitionInformation getBrokerForTopic(String topic) {
 		refresh();
-		for(GlobalPartitionInformation partitionInformation : cachedBrokers) {
-			if (partitionInformation.topic.equals(topic)) return partitionInformation;
-		}
+        for(GlobalPartitionInformation partitionInformation : cachedBrokers) {
+            if (partitionInformation.topic.equals(topic)) return partitionInformation;
+        }
 		return null;
 	}
 

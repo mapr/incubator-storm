@@ -187,21 +187,21 @@ public class KafkaUtilsTest {
             assertEquals(value, lists.iterator().next().get(0));
         }
     }
-
+    
     @Test
     public void generateTuplesWithMessageAndMetadataScheme() {
         String value = "value";
         Partition mockPartition = Mockito.mock(Partition.class);
         mockPartition.partition = 0;
         long offset = 0L;
-
+        
         MessageMetadataSchemeAsMultiScheme scheme = new MessageMetadataSchemeAsMultiScheme(new StringMessageAndMetadataScheme());
-
+        
         createTopicAndSendMessage(null, value);
         ByteBufferMessageSet messageAndOffsets = getLastMessage();
         for (MessageAndOffset msg : messageAndOffsets) {
             Iterable<List<Object>> lists = KafkaUtils.generateTuples(scheme, msg.message(), mockPartition, offset);
-            List<Object> values = lists.iterator().next();
+            List<Object> values = lists.iterator().next(); 
             assertEquals("Message is incorrect", value, values.get(0));
             assertEquals("Partition is incorrect", mockPartition.partition, values.get(1));
             assertEquals("Offset is incorrect", offset, values.get(2));
@@ -215,7 +215,7 @@ public class KafkaUtilsTest {
 
     private void runGetValueOnlyTuplesTest() {
         String value = "value";
-
+        
         createTopicAndSendMessage(null, value);
         ByteBufferMessageSet messageAndOffsets = getLastMessage();
         for (MessageAndOffset msg : messageAndOffsets) {
@@ -264,7 +264,7 @@ public class KafkaUtilsTest {
     public void assignAllPartitionsToOneTask() {
         runPartitionToTaskMappingTest(32, 32);
     }
-
+    
     public void runPartitionToTaskMappingTest(int numPartitions, int partitionsPerTask) {
         GlobalPartitionInformation globalPartitionInformation = TestUtils.buildPartitionInfo(numPartitions);
         List<GlobalPartitionInformation> partitions = new ArrayList<GlobalPartitionInformation>();

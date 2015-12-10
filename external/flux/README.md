@@ -610,7 +610,7 @@ config:
 # spout definitions
 spouts:
   - id: "kafka-spout"
-    className: "storm.kafka.KafkaSpout"
+    className: "storm.kafka.KafkaSpoutOld"
     constructorArgs:
       - ref: "spoutConfig"
 

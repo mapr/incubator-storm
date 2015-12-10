@@ -57,7 +57,6 @@ public class KafkaBolt<K, V> extends BaseRichBolt {
     private static final Logger LOG = LoggerFactory.getLogger(KafkaBolt.class);
 
     public static final String TOPIC = "topic";
-    public static final String KAFKA_BROKER_PROPERTIES = "kafka.broker.properties";
 
     private KafkaProducer<K, V> producer;
     private OutputCollector collector;
@@ -68,13 +67,12 @@ public class KafkaBolt<K, V> extends BaseRichBolt {
      * With default setting for fireAndForget and async, the callback is called when the sending succeeds.
      * By setting fireAndForget true, the send will not wait at all for kafka to ack.
      * "acks" setting in 0.8.2 Producer API config doesn't matter if fireAndForget is set.
-     * By setting async false, synchronous sending is used.
+     * By setting async false, synchronous sending is used. 
      */
     private boolean fireAndForget = false;
     private boolean async = true;
 
-    public KafkaBolt() {
-    }
+    public KafkaBolt() {}
 
     public KafkaBolt<K,V> withTupleToKafkaMapper(TupleToKafkaMapper<K,V> mapper) {
         this.mapper = mapper;
@@ -103,22 +101,15 @@ public class KafkaBolt<K, V> extends BaseRichBolt {
             this.topicSelector = new DefaultTopicSelector((String) stormConf.get(TOPIC));
         }
 
-        Map configMap = (Map) stormConf.get(KAFKA_BROKER_PROPERTIES);
-        Properties properties = new Properties();
-        if(configMap!= null)
-            properties.putAll(configMap);
-        if(boltSpecfiedProperties != null)
-            properties.putAll(boltSpecfiedProperties);
-
-        producer = new KafkaProducer<K, V>(properties);
+        producer = new KafkaProducer<>(boltSpecfiedProperties);
         this.collector = collector;
     }
 
     @Override
     public void execute(final Tuple input) {
         if (TupleUtils.isTick(input)) {
-            collector.ack(input);
-            return; // Do not try to send ticks to Kafka
+          collector.ack(input);
+          return; // Do not try to send ticks to Kafka
         }
         K key = null;
         V message = null;
