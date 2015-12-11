@@ -27,5 +27,5 @@
     - 6701
     - 6702
     - 6703
-# worker.childopts: " -Dzookeeper.sasl.client=false -Djava.security.auth.login.config=/opt/mapr/conf/mapr.login.conf"
+ worker.childopts: " -Dzookeeper.sasl.client=false -Djava.security.auth.login.config=/opt/mapr/conf/mapr.login.conf"
 # supervisor.childopts: " -Dzookeeper.sasl.client=false -Djava.security.auth.login.config=/opt/mapr/conf/mapr.login.conf"
