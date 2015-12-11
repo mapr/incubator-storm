@@ -41,7 +41,7 @@
       <dependency>
           <groupId>org.apache.hbase</groupId>
           <artifactId>hbase-client</artifactId>
-          <version>0.98.4-mapr-1408-m7-4.0.1</version>
+          <version>0.98.12-mapr-1506-m7-5.0.0</version>
           <exclusions>
               <exclusion>
                   <groupId>org.slf4j</groupId>

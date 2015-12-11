@@ -68,7 +68,7 @@ fi
 
 export STORM_CONF_DIR="${STORM_CONF_DIR:-$STORM_BASE_DIR/conf}"
 export STORM_CONF_FILE="${STORM_CONF_FILE:-$STORM_BASE_DIR/conf/storm.yaml}"
-export MARLIN_CLASSPATH=`streams classpath`
+export MARLIN_CLASSPATH=`mapr classpath`
 
 if [ -f "${STORM_CONF_DIR}/storm-env.sh" ]; then
   . "${STORM_CONF_DIR}/storm-env.sh"
