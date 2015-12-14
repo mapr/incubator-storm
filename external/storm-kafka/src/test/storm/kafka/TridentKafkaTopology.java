@@ -22,7 +22,6 @@ import backtype.storm.LocalCluster;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
-import com.google.common.collect.ImmutableMap;
 import storm.kafka.trident.TridentKafkaStateFactory;
 import storm.kafka.trident.TridentKafkaUpdater;
 import storm.kafka.trident.mapper.FieldNameBasedTupleToKafkaMapper;

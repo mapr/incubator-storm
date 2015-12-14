@@ -64,7 +64,13 @@ public class KafkaJavaApiSpout extends BaseRichSpout {
             consumer = new KafkaConsumer(conf);
         }
         messages = new ConcurrentHashMap<Long, Values>();
-        consumer.subscribe(Collections.singletonList(_spoutConfig.topic));
+
+        //check is multi-topic
+        if(_spoutConfig.topic == null){
+            consumer.subscribe(_spoutConfig.topics);
+        }else{
+            consumer.subscribe(Collections.singletonList(_spoutConfig.topic));
+        }
     }
 
     @Override
