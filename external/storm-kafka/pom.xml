@@ -119,7 +119,7 @@
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka_2.10</artifactId>
-            <version>0.9.0.0-mapr-SNAPSHOT</version>
+            <version>0.9.0.0</version>
             <!-- use provided scope, so users can pull in whichever scala version they choose -->
             <scope>provided</scope>
             <exclusions>
@@ -146,7 +146,7 @@
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
-            <version>0.9.0.0-mapr-SNAPSHOT</version>
+            <version>0.9.0.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
