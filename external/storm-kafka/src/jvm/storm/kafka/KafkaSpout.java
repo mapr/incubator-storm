@@ -5,6 +5,7 @@ import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -13,20 +14,24 @@ import java.util.Map;
  */
 public class KafkaSpout extends BaseRichSpout {
 
+    public static final org.slf4j.Logger LOG = LoggerFactory.getLogger(KafkaSpout.class);
+
     private BaseRichSpout implemenation;
     private SpoutConfig _spoutConfig;
 
     public KafkaSpout(SpoutConfig spoutConfig){
         _spoutConfig = spoutConfig;
+        if("0.9".equals(_spoutConfig.kafkaAPIv)){
+            implemenation = new KafkaJavaApiSpout(_spoutConfig);
+            LOG.debug("Will use 0.9 Kafka spout implementation");
+        }else{
+            implemenation = new KafkaSpoutOld(_spoutConfig);
+            LOG.debug("Will use 0.8 Kafka spout implementation");
+        }
     }
 
     @Override
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
-        if(conf.containsKey(Config.KAFKA_USE_09_API) && (Boolean)conf.get(Config.KAFKA_USE_09_API)){
-            implemenation = new KafkaJavaApiSpout(_spoutConfig);
-        }else{
-            implemenation = new KafkaSpoutOld(_spoutConfig);
-        }
         implemenation.open(conf, context, collector);
     }
 
@@ -65,8 +70,4 @@ public class KafkaSpout extends BaseRichSpout {
         implemenation.deactivate();
     }
 
-    @Override
-    public Map<String, Object> getComponentConfiguration() {
-        return implemenation.getComponentConfiguration();
-    }
 }
