@@ -87,6 +87,4 @@ public class MysqlJDBCTopology {
             StormSubmitter.submitTopology(args[3], config, builder.createTopology());
         }
     }
-
-
 }

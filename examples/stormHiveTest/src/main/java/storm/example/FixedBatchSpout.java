@@ -12,9 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author vpavlenko on 24.12.15.
- */
 public class FixedBatchSpout implements IBatchSpout {
     int maxBatchSize;
     HashMap<Long, List<List<Object>>> batches = new HashMap<Long, List<List<Object>>>();
