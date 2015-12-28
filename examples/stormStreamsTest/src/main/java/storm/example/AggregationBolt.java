@@ -16,11 +16,12 @@ import storm.kafka.bolt.mapper.TupleToKafkaMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class AggregationBolt<K,V>  implements IRichBolt {
 
     protected OutputCollector collector;
-    protected Logger log;
+    protected static final Logger log = Logger.getLogger(AggregationBolt.class);
     private long periodInSecs;
     private TupleToKafkaMapper<K, V> mapper;
     private List<Tuple> batch;
@@ -37,18 +38,17 @@ public class AggregationBolt<K,V>  implements IRichBolt {
         if(this.mapper == null) {
             this.mapper = new FieldNameBasedTupleToKafkaMapper();
         }
-        batch = new ArrayList<>();
-        log = Logger.getLogger(getClass().getName());
+        batch = new CopyOnWriteArrayList<>();
     }
 
     @Override
     public void execute(Tuple tuple) {
         if(isTickTuple(tuple)){
             for(Tuple t : batch){
-                collector.emit(t, new Values(t.getValueByField("key"),
-                        t.getValueByField("message"),
-                        t.getValueByField("topic"),
-                        t.getValueByField("attempt")));
+                collector.emit(t, new Values(t.getValueByField(DemoTopology.KEY_FIELD),
+                        t.getValueByField(DemoTopology.MESSAGE_FIELD),
+                        t.getValueByField(DemoTopology.TOPIC_FIELD),
+                        t.getValueByField(DemoTopology.ATTEMP_FIELD)));
                 collector.ack(t);
             }
             batch.clear();
@@ -63,7 +63,7 @@ public class AggregationBolt<K,V>  implements IRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("key", "message", "topic", "attempt"));
+        declarer.declare(new Fields(DemoTopology.KEY_FIELD, DemoTopology.MESSAGE_FIELD, DemoTopology.TOPIC_FIELD, DemoTopology.ATTEMP_FIELD));
     }
 
     @Override

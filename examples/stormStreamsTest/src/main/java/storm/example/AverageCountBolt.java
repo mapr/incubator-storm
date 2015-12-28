@@ -36,7 +36,7 @@ public class AverageCountBolt<K,V>  implements IRichBolt {
         if(isTickTuple(tuple)){
             long cachedCount = count;
             count = 0;
-            LOG.info("Got tick tuple, emiting count={}", cachedCount);
+            LOG.info("Got tick tuple, emitting count={}", cachedCount);
             collector.emit(new Values("", String.valueOf(cachedCount)));
 
         }else{
@@ -53,7 +53,7 @@ public class AverageCountBolt<K,V>  implements IRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("key", "message"));
+        declarer.declare(new Fields(DemoTopology.KEY_FIELD, DemoTopology.MESSAGE_FIELD));
     }
 
     @Override
