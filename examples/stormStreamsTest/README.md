@@ -8,19 +8,27 @@ $ mvn clean package
  ==========================================
 
 
- Download marlin-jar-with-dependencies.jar from http://redmine.cybervisiontech.com/projects/mapr/wiki/MARLIN
+ Download marlin-jar-with-dependencies.jar
+
  Do
  ```
  export MARLIN_CLASSPATH=`mapr classpath`
  ```
  Submit topology
 
- Run shell command:
+ Run Streams producer
  ```
- $ for ((i=0;;i++)); do (echo `date` " message $i" | hadoop fs -appendToFile - /test999.txt); sleep .5; done;
+ java -cp "$MARLIN_CLASSPATH:marlin-jar-with-dependencies.jar" -Djava.library.path=/opt/mapr/lib Main /streaming_data/marlin:events producer
+ ```
+ Run Streams consumer
+ ```
+ java -cp "$MARLIN_CLASSPATH:marlin-jar-with-dependencies.jar" -Djava.library.path=/opt/mapr/lib Main /streaming_data/marlin:average consumer
  ```
 
-And submit topology:
- ```
-$ storm jar /tmp/storm-maprfs-tests-1.0-jar-with-dependencies.jar storm.example.MaprFSTopology /test999.txt maprf-topology
- ```
+
+ Print any data into producer shell.
+
+ Look to consumer shell, verify that it receives number of message sent.
+
+ Delay between producer and consumer must be ~5 sec
+
