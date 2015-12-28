@@ -1,10 +1,10 @@
 package storm.kafka;
 
-import backtype.storm.Config;
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -13,60 +13,60 @@ import java.util.Map;
  */
 public class KafkaSpout extends BaseRichSpout {
 
-    private BaseRichSpout implemenation;
+    public static final org.slf4j.Logger LOG = LoggerFactory.getLogger(KafkaSpout.class);
+
+    private BaseRichSpout implementation;
     private SpoutConfig _spoutConfig;
 
     public KafkaSpout(SpoutConfig spoutConfig){
         _spoutConfig = spoutConfig;
+        if(_spoutConfig.kafkaAPIv != null && 0.9 >= Double.parseDouble(_spoutConfig.kafkaAPIv)){
+            implementation = new KafkaJavaApiSpout(_spoutConfig);
+            LOG.debug("Will use 0.9 Kafka spout implementation");
+        }else{
+            implementation = new KafkaSpoutOld(_spoutConfig);
+            LOG.debug("Will use 0.8 Kafka spout implementation");
+        }
     }
 
     @Override
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
-        if(conf.containsKey(Config.KAFKA_USE_09_API) && (Boolean)conf.get(Config.KAFKA_USE_09_API)){
-            implemenation = new KafkaJavaApiSpout(_spoutConfig);
-        }else{
-            implemenation = new KafkaSpoutOld(_spoutConfig);
-        }
-        implemenation.open(conf, context, collector);
+        implementation.open(conf, context, collector);
     }
 
     @Override
     public void nextTuple() {
-        implemenation.nextTuple();
+        implementation.nextTuple();
     }
 
     @Override
     public void ack(Object msgId) {
-        implemenation.ack(msgId);
+        implementation.ack(msgId);
     }
 
     @Override
     public void fail(Object msgId) {
-        implemenation.fail(msgId);
+        implementation.fail(msgId);
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        implemenation.declareOutputFields(declarer);
+        implementation.declareOutputFields(declarer);
     }
 
     @Override
     public void close() {
-        implemenation.close();
+        implementation.close();
     }
 
     @Override
     public void activate() {
-        implemenation.activate();
+        implementation.activate();
     }
 
     @Override
     public void deactivate() {
-        implemenation.deactivate();
+        implementation.deactivate();
     }
 
-    @Override
-    public Map<String, Object> getComponentConfiguration() {
-        return implemenation.getComponentConfiguration();
-    }
 }

@@ -26,6 +26,7 @@ public class SpoutConfig extends KafkaConfig implements Serializable {
     public Integer zkPort = null;
     public String zkRoot = null;
     public String id = null;
+    public String kafkaAPIv = null;
 
     // if set to true, spout will set Kafka topic as the emitted Stream ID
     public boolean topicAsStreamId = false;

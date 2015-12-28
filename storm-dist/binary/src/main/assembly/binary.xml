@@ -78,7 +78,7 @@
           <includes>
             <include>worker-launcher</include>
           </includes>
-          <outputDirectory>bin</outputDirectory>
+          <outputDirectory>${storm.dir}/bin</outputDirectory>
         </fileSet>
         <!-- EXTERNAL -->
         <fileSet>
