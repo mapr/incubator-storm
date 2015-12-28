@@ -21,7 +21,7 @@ public class KafkaSpout extends BaseRichSpout {
 
     public KafkaSpout(SpoutConfig spoutConfig){
         _spoutConfig = spoutConfig;
-        if("0.9".equals(_spoutConfig.kafkaAPIv)){
+        if(_spoutConfig.kafkaAPIv != null && 0.9 >= Double.parseDouble(_spoutConfig.kafkaAPIv)){
             implemenation = new KafkaJavaApiSpout(_spoutConfig);
             LOG.debug("Will use 0.9 Kafka spout implementation");
         }else{
