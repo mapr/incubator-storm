@@ -1,6 +1,5 @@
 package storm.example;
 
-import backtype.storm.spout.RawMultiScheme;
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.IRichSpout;
@@ -14,9 +13,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-/**
- * @author vpavlenko on 22.12.15.
- */
+
 public class UserSpout implements IRichSpout {
 
     final static Random rand = new Random();

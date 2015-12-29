@@ -18,9 +18,6 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
-/**
- * @author vpavlenko on 23.12.15.
- */
 public class MysqlJDBCTest {
 
     private JdbcClient client;

@@ -14,9 +14,6 @@ import storm.trident.TridentState;
 import storm.trident.TridentTopology;
 import storm.trident.state.StateFactory;
 
-/**
- * @author vpavlenko on 24.12.15.
- */
 public class HiveTopology {
 
     public static void main(String[] args) {
@@ -33,19 +30,19 @@ public class HiveTopology {
         String tblName = args[2];
         Config conf = new Config();
         conf.setMaxSpoutPending(5);
-        if(args.length == 4) {
-            try {
-                StormSubmitter.submitTopology(args[3], conf, buildTopology(metaStoreURI, dbName, tblName,null,null));
-            } catch(Exception e) {
-                System.out.println("Failed to submit topology"+e);
-            }
-        } else if(args.length == 6) {
-            try {
-                StormSubmitter.submitTopology(args[3], conf, buildTopology(metaStoreURI, dbName, tblName, args[4], args[5]));
-            } catch (Exception e) {
-                System.out.println("Failed to submit topology" + e);
-            }
+        Object keytab = null, principal = null;
+        if(args.length == 6){
+            keytab = args[4];
+            principal = args[5];
         }
+
+
+        try {
+            StormSubmitter.submitTopology(args[3], conf, buildTopology(metaStoreURI, dbName, tblName, keytab, principal));
+        } catch(Exception e) {
+            System.out.println("Failed to submit topology"+e);
+        }
+
     }
 
     public static StormTopology buildTopology(String metaStoreURI, String dbName, String tblName, Object keytab, Object principal) {
