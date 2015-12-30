@@ -31,25 +31,23 @@ Use the `mysql shell` command to create database and table:
 **!!!IMPORTANT!!!** create database before mvn package
 
 ```
-$ mvn clean package -DdatabaseName="test"
+$ mvn clean package -DdatabaseName="[databaseName]" -DuserName="[userName]" -Dpassword="[password]"
 ```
 
-Run the 
+Run the
 ```
-storm jar target/storm-JDBC-test-1.0-SNAPSHOT-jar-with-dependencies.jar storm.example.MysqlJDBCTopology [datasource url] [user] [password] [remote]
+storm jar target/storm-JDBC-test-1.0-SNAPSHOT-jar-with-dependencies.jar storm.example.MysqlJDBCTopology [datasource url] [userName] [password] [topology-name]
 ```
 
 **use your user and password**
 
 ***Example*** `storm jar storm-JDBC-test-1.0-SNAPSHOT-jar-with-dependencies.jar storm.example.MysqlJDBCTopology jdbc:mysql://localhost/test root 123456`
 
-
 Use the `mysql shell` to check data at table.
 
 > use test;
 
 > select * from user;
-
 
 | user_id   | user_name  | dept_name   | create_date   |
 | --------- | -----------| ----------- | ------------- |
@@ -65,7 +63,6 @@ Use the `mysql shell` to check data at table.
 |       2   | bob        | Finance     | 2015-12-23    |
 |       1   | peter      | R&D         | 2015-12-23    |
 |     ...   | ...        | ...         | ...           |
-
 
 
 

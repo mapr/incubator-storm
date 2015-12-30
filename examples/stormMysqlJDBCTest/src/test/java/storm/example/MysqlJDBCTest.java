@@ -16,22 +16,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
-
 public class MysqlJDBCTest {
 
     private JdbcClient client;
 
     private static final String tableName = "user_details";
     private String databaseName;
+    private String userName;
+    private String password;
     @Before
     public void setup() {
         databaseName = System.getProperty("databaseName");
+        userName = System.getProperty("userName");
+        password = System.getProperty("password");
         Map map = Maps.newHashMap();
         map.put("dataSourceClassName","com.mysql.jdbc.jdbc2.optional.MysqlDataSource");//com.mysql.jdbc.jdbc2.optional.MysqlDataSource
         map.put("dataSource.url", "jdbc:mysql://localhost/" + databaseName);//jdbc:mysql://localhost/test
-        map.put("dataSource.user","root");//root
-        map.put("dataSource.password","123456");//password
+        map.put("dataSource.user", userName);//root
+        map.put("dataSource.password", password );//password
         ConnectionProvider connectionProvider = new HikariCPConnectionProvider(map);
         connectionProvider.prepare();
 
