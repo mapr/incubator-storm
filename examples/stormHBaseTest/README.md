@@ -71,6 +71,35 @@ In `pom.xml` uncomment following lines:
               </dependency>-->
         <!--===========-->
 ```
+Work with HBase 1.1
+=====================
+
+In `pom.xml` uncomment following lines:
+```
+        <!--=== For HBase 1.1 ====-->
+        <!--      <dependency>
+                  <groupId>org.apache.hbase</groupId>
+                  <artifactId>hbase</artifactId>
+                  <version>1.1.1-mapr-1508-SNAPSHOT</version>
+                  <exclusions>
+                      <exclusion>
+                          <groupId>org.slf4j</groupId>
+                          <artifactId>slf4j-log4j12</artifactId>
+                      </exclusion>
+                  </exclusions>
+              </dependency>
+
+              <dependency>
+                  <groupId>org.json</groupId>
+                  <artifactId>json</artifactId>
+                  <version>20090211</version>
+              </dependency>-->
+
+              change  <url>http://repository.mapr.com/maven/</url>
+              to <url>http://repository_cv.mapr.com/maven/</url>
+        <!--===========-->
+```
+
 
 And comment out the following lines:
 ```

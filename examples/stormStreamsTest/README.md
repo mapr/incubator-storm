@@ -16,6 +16,10 @@ $ mvn clean package
  ```
  Submit topology
 
+ ```
+ storm jar storm-streams-test-1.0-jar-with-dependencies.jar localhost:5181 true
+ ```
+
  Run Streams producer
  ```
  java -cp "$MARLIN_CLASSPATH:marlin-jar-with-dependencies.jar" -Djava.library.path=/opt/mapr/lib Main /streaming_data/marlin:events producer
