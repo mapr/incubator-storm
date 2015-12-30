@@ -17,7 +17,7 @@ $ mvn clean package
  Submit topology
 
  ```
- storm jar storm-streams-test-1.0-jar-with-dependencies.jar localhost:5181 true
+ storm jar storm-streams-test-1.0-jar-with-dependencies.jar storm.example.DemoTopology localhost:5181 true
  ```
 
  Run Streams producer
