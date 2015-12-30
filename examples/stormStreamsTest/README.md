@@ -34,7 +34,7 @@ From user mapr:
  Submit topology
 
  ```
- storm jar storm-streams-test-1.0-jar-with-dependencies.jar storm.example.DemoTopology localhost:5181 true
+ storm jar storm-streams-test-1.0-jar-with-dependencies.jar storm.example.DemoTopology localhost:5181 true /streaming_data/marlin:events /streaming_data/marlin:average
  ```
 
  Run Streams producer
