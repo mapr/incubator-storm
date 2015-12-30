@@ -11,6 +11,23 @@ $ mvn clean package
  Download marlin-jar-with-dependencies.jar
 
  Do
+
+```
+From user mapr:
+
+ maprcli volume create -name stream -replicationtype low_latency -path /streaming_data
+
+ maprcli stream create -path /streaming_data/marlin
+
+ maprcli stream topic create -path /streaming_data/marlin -topic events
+
+ maprcli stream topic create -path /streaming_data/marlin -topic trash
+
+ maprcli stream topic create -path /streaming_data/marlin -topic average
+
+ maprcli stream edit -path /streaming_data/marlin -produceperm u:mapr g:mapr -consumeperm u:mapr g:mapr
+```
+
  ```
  export MARLIN_CLASSPATH=`mapr classpath`
  ```
@@ -36,3 +53,6 @@ $ mvn clean package
 
  Delay between producer and consumer must be ~5 sec
 
+
+ To work with Kafka create read-topic and write-topic in Kafka. And run topology as previously.
+ For Kafka version <0.9 change "true" in topology run code to "false"
