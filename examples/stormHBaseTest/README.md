@@ -38,7 +38,7 @@ ROW                                                                  COLUMN+CELL
 
  1. Generate dummy data and store to the table(hbase or maprdb):
  ```
- java -cp /tmp/storm-maprdbtable-tests-1.0-jar-with-dependencies.jar storm.example.TableValuesGenerator /WordCount
+ java -cp storm-maprdbtable-tests-1.0-jar-with-dependencies.jar storm.example.TableValuesGenerator /WordCount
  ```
  
  2. Run:

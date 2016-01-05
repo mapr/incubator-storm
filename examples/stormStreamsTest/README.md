@@ -41,7 +41,11 @@ From user mapr:
  Submit topology
 
  ```
- storm jar storm-streams-test-1.0-jar-with-dependencies.jar storm.example.DemoTopology localhost:5181 true /streaming_data/marlin:events /streaming_data/marlin:average /streaming_data/marlin:trash
+ usage: storm jar [zookeeperHost:port] [bootstrap server host:port] [use kafka 09 API: true/false] [topic to read from] [topic to write count] [topic to send duplicated source data]
+ ```
+ Example:
+ ```
+ storm jar storm-streams-test-1.0-jar-with-dependencies.jar storm.example.DemoTopology localhost:5181 localhost:9092 true /streaming_data/marlin:events /streaming_data/marlin:average /streaming_data/marlin:trash
  ```
 
  Run Streams producer
@@ -99,5 +103,5 @@ From user mapr:
   Change "true" in topology run signature run code to "false":
 
 ```
-storm jar storm-streams-test-1.0-jar-with-dependencies.jar storm.example.DemoTopology localhost:5181 false events average trash
+storm jar storm-streams-test-1.0-jar-with-dependencies.jar storm.example.DemoTopology localhost:5181 localhost:9092 false events average trash
 ```
