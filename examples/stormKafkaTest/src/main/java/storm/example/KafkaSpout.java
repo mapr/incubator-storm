@@ -1,5 +1,6 @@
 package storm.example;
 
+import backtype.storm.Config;
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
@@ -18,7 +19,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class KafkaSpout extends BaseRichSpout {
     private String queueName;
     private SpoutOutputCollector collector;
-    static String a_zookeeper = "localhost:5181";
+    public static String a_zookeeper = "";
     static String a_groupId = "1";
 
     private BlockingQueue<String> bq = new LinkedBlockingDeque<String>();

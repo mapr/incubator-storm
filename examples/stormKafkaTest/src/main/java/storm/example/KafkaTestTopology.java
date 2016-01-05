@@ -13,12 +13,14 @@ public class KafkaTestTopology {
     private final static String PRINT_BOLT = "printBolt";
 
     public static void main(String[] args) throws AlreadyAliveException, InvalidTopologyException {
-        if (args.length == 0) {
-            System.out.println("Please provide topic name.");
+        if (args.length < 2) {
+            System.out.println("Usage: [topic name] [zookeeper host:port]");
             return;
         }
 
-        IRichSpout kafkaSpout = new KafkaSpout(args[0]);
+        KafkaSpout.a_zookeeper = args[1];
+        KafkaSpout kafkaSpout = new KafkaSpout(args[0]);
+
 
         TopologyBuilder builder = new TopologyBuilder();
         builder.setSpout(KAFKA_SPOUT, kafkaSpout).setMaxSpoutPending(200);
