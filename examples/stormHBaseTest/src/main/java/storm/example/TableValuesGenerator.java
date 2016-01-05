@@ -9,14 +9,15 @@ import java.util.List;
 
 public class TableValuesGenerator {
     public static void main(String[] args) throws IOException, InterruptedException {
-        if (args.length == 0) {
-            System.out.println("Please, set table name.");
+        if (args.length <2) {
+            System.out.println("Usage: [table name] [zookeeper host]");
             return;
         }
 
         Configuration config = HBaseConfiguration.create();
         config.set("hbase.zookeeper.property.clientPort", "5181");
         config.set("hbase.rootdir", "maprfs:///hbase");
+        config.set("hbase.zookeeper.quorum", args[1]);
         HTable table = new HTable(config, args[0]);
         int n = 1000000;
         List<Put> puts = new ArrayList(n);

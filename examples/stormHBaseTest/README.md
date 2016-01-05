@@ -13,6 +13,7 @@ Run the
 ```
 storm jar storm-maprdbtable-tests-1.0-jar-with-dependencies.jar storm.example.PersistentWordCount WordCount localhost hbase-example
 ```
+Where localhost stands for Zookeeper hostname.
 
 Use the `hbase shell` to check data at table.
 
@@ -38,14 +39,14 @@ ROW                                                                  COLUMN+CELL
 
  1. Generate dummy data and store to the table(hbase or maprdb):
  ```
- java -cp storm-maprdbtable-tests-1.0-jar-with-dependencies.jar storm.example.TableValuesGenerator /WordCount
+ java -cp storm-maprdbtable-tests-1.0-jar-with-dependencies.jar storm.example.TableValuesGenerator /WordCount localhost
  ```
- 
+ Where localhost stands for Zookeeper hostname.
  2. Run:
  ```
  storm jar storm-maprdbtable-tests-1.0-jar-with-dependencies.jar storm.example.SpoutHbaseTopology /WordCount localhost maprdb-spout
  ```
-
+Where localhost stands for Zookeeper hostname.
 Work with HBase 0.94
 =====================
 

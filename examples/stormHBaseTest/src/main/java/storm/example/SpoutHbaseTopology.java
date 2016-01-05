@@ -30,8 +30,7 @@ public class SpoutHbaseTopology {
 
         TopologyBuilder builder = new TopologyBuilder();
 
-        HBaseSpout.ZOOKEEPER_HOSTNAME=args[1];
-        HBaseSpout spout = new HBaseSpout(tableName);
+        HBaseSpout spout = new HBaseSpout(tableName, args[1]);
 
         BaseRichBolt bolt = new BaseRichBolt() {
             OutputCollector outputCollector;
