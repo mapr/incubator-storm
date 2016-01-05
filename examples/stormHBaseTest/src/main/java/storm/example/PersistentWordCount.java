@@ -43,12 +43,13 @@ public class PersistentWordCount {
         Map<String, Object> hbConf = new HashMap<String, Object>();
         hbConf.put("hbase.zookeeper.property.clientPort", 5181);
         hbConf.put("hbase.rootdir", "maprfs:///hbase");
+        hbConf.put("hbase.zookeeper.quorum", args[1]);
         config.put(HBaseBolt.CONFIG_KEY, hbConf);
 
         WordSpout spout = new WordSpout();
         WordCounter bolt = new WordCounter();
-        if (args.length == 0) {
-            System.out.println("Please, set table name.");
+        if (args.length < 2) {
+            System.out.println("Usage: [table name] [zookeeper host]");
             return;
         }
         String tableName = args[0];
@@ -60,17 +61,17 @@ public class PersistentWordCount {
         builder.setBolt(COUNT_BOLT, bolt, 1).shuffleGrouping(WORD_SPOUT);
         builder.setBolt(HBASE_BOLT, hbase, 1).fieldsGrouping(COUNT_BOLT, new Fields("word"));
 
-        if (args.length == 1) {
+        if (args.length == 2) {
             LocalCluster cluster = new LocalCluster();
             cluster.submitTopology("test", config, builder.createTopology());
             Thread.sleep(30000);
             cluster.killTopology("test");
             cluster.shutdown();
             System.exit(0);
-        } else if (args.length == 2) {
+        } else if (args.length == 3) {
             StormSubmitter.submitTopology(args[1], config, builder.createTopology());
         } else{
-            System.out.println("Usage: PersistentWordCount <hdfs url> [topology name]");
+            System.out.println("Usage: PersistentWordCount <hdfs url> <zookeeper host> [topology name]");
         }
     }
 }
