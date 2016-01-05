@@ -23,13 +23,14 @@ public class SpoutHbaseTopology {
     public static void main(String[] args) throws InterruptedException, AlreadyAliveException, InvalidTopologyException {
 
         if (args.length == 0) {
-            System.out.println("Usage: SpoutHbaseTopology [table name] [topology name]");
+            System.out.println("Usage: SpoutHbaseTopology [table name] [zookeeper host] [topology name]");
             return;
         }
         final String tableName = args[0];
 
         TopologyBuilder builder = new TopologyBuilder();
 
+        HBaseSpout.ZOOKEEPER_HOSTNAME=args[1];
         HBaseSpout spout = new HBaseSpout(tableName);
 
         BaseRichBolt bolt = new BaseRichBolt() {
@@ -57,17 +58,17 @@ public class SpoutHbaseTopology {
 
 
         Config config = new Config();
-        if (args.length == 1) {
+        if (args.length == 2) {
             LocalCluster cluster = new LocalCluster();
             cluster.submitTopology("test", config, builder.createTopology());
             Thread.sleep(30000);
             cluster.killTopology("test");
             cluster.shutdown();
             System.exit(0);
-        } else if (args.length == 2) {
-            StormSubmitter.submitTopology(args[1], config, builder.createTopology());
+        } else if (args.length == 3) {
+            StormSubmitter.submitTopology(args[2], config, builder.createTopology());
         } else{
-            System.out.println("Usage: SpoutHbaseTopology [table name] [topology name]");
+            System.out.println("Usage: SpoutHbaseTopology [table name] [zookeeper host] [topology name]");
         }
 
     }

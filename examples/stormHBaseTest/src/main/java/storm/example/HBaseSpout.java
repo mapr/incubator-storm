@@ -20,6 +20,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class HBaseSpout extends BaseRichSpout {
     public static final String COLUMN_NAME = "word";
+    public static String ZOOKEEPER_HOSTNAME="localhost";
 
     private String tableName;
     private HTable table;
@@ -41,6 +42,7 @@ public class HBaseSpout extends BaseRichSpout {
         Configuration config = HBaseConfiguration.create();
         config.set("hbase.zookeeper.property.clientPort", "5181");
         config.set("hbase.rootdir", "maprfs:///hbase");
+        config.set("hbase.zookeeper.quorum", ZOOKEEPER_HOSTNAME);
         try {
             table = new HTable(config, tableName);
             final ResultScanner res = table.getScanner("cf".getBytes());

@@ -11,7 +11,7 @@ Use the `hbase shell` command to create the schema:
 
 Run the 
 ```
-storm jar storm-maprdbtable-tests-1.0-jar-with-dependencies.jar storm.example.PersistentWordCount WordCount hbase-example
+storm jar storm-maprdbtable-tests-1.0-jar-with-dependencies.jar storm.example.PersistentWordCount WordCount localhost hbase-example
 ```
 
 Use the `hbase shell` to check data at table.
@@ -43,7 +43,7 @@ ROW                                                                  COLUMN+CELL
  
  2. Run:
  ```
- storm jar storm-maprdbtable-tests-1.0-jar-with-dependencies.jar storm.example.SpoutHbaseTopology /WordCount maprdb-spout
+ storm jar storm-maprdbtable-tests-1.0-jar-with-dependencies.jar storm.example.SpoutHbaseTopology /WordCount localhost maprdb-spout
  ```
 
 Work with HBase 0.94
