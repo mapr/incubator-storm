@@ -1478,14 +1478,6 @@ public class Config extends HashMap<String, Object> {
     public static final String KAFKA_MAX_FAIL_ATTEMPTS_COUNT = "kafka.max.fails";
     public static final Object KAFKA_MAX_FAIL_ATTEMPTS_COUNT_SCHEMA = Long.class;
 
-
-    /**
-     * Kafka spout config
-     * Define what Kafka API (0.8 or 0.9) to use.
-     */
-    public static final String KAFKA_USE_09_API = "kafka.api.09";
-    public static final Object KAFKA_USE_09_API_SCHEMA = Boolean.class;
-
     public static void setClasspath(Map conf, String cp) {
         conf.put(Config.TOPOLOGY_CLASSPATH, cp);
     }

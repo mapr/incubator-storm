@@ -70,7 +70,7 @@ From user mapr:
   Kafka 0.9+:
   Run topology as previously.
 
-  Kafka 0.9-:
+  Kafka 0.9 or less:
 
   Remove 0.9 Kafka library from ${STORM_HOME}/lib directory (kafka-clients-0.9.0.0*mapr*.jar)
 
