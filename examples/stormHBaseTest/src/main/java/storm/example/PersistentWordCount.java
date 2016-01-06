@@ -69,7 +69,7 @@ public class PersistentWordCount {
             cluster.shutdown();
             System.exit(0);
         } else if (args.length == 3) {
-            StormSubmitter.submitTopology(args[1], config, builder.createTopology());
+            StormSubmitter.submitTopology(args[2], config, builder.createTopology());
         } else{
             System.out.println("Usage: PersistentWordCount <hdfs url> <zookeeper host> [topology name]");
         }

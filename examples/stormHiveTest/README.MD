@@ -17,7 +17,7 @@ create table test_table ( id INT, name STRING, phone STRING, street STRING) part
 Run the 
 
 ```
-storm jar target/storm-hive-test-1.0-jar-with-dependencies.jar storm.example.HiveTopology <metaStoreURI> <databaseName> <tableName> [path to Kerberos keytab] [Kerberos principal] <topologyName>
+storm jar target/storm-hive-test-1.0-jar-with-dependencies.jar storm.example.HiveTopology <metaStoreURI> <databaseName> <tableName> <topologyName> [path to Kerberos keytab] [Kerberos principal] 
 ```
 
 **example for none Kerberos**

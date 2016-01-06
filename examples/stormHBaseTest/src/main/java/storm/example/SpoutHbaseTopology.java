@@ -4,6 +4,7 @@ import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
 import backtype.storm.generated.AlreadyAliveException;
+import backtype.storm.generated.AuthorizationException;
 import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -20,7 +21,7 @@ public class SpoutHbaseTopology {
     private static final String HBASE_SPOUT = "HBASE_SPOUT";
     private static final String COUNT_BOLT = "COUNT_BOLT";
 
-    public static void main(String[] args) throws InterruptedException, AlreadyAliveException, InvalidTopologyException {
+    public static void main(String[] args) throws InterruptedException, AlreadyAliveException, InvalidTopologyException, AuthorizationException {
 
         if (args.length == 0) {
             System.out.println("Usage: SpoutHbaseTopology [table name] [zookeeper host] [topology name]");

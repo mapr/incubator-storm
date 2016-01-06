@@ -31,7 +31,7 @@ Use the `mysql shell` command to create database and table:
 **!!!IMPORTANT!!!** create database before mvn package
 
 ```
-$ mvn clean package -DdatabaseName="[databaseName]" -DuserName="[userName]" -Dpassword="[password]"
+$ mvn clean package -DdataSourceUrl="[datasource url]" -DuserName="[userName]" -Dpassword="[password]"
 ```
 
 Run the
