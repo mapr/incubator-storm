@@ -68,8 +68,8 @@
                 <configuration>
                     <systemProperties>
                         <property>
-                            <name>databaseName</name>
-                            <value>${databaseName}</value>
+                            <name>datasSourceUrl</name>
+                            <value>${datasSourceUrl}</value>
                         </property>
                         <property>
                             <name>userName</name>
