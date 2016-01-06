@@ -4,7 +4,8 @@ Build project:
 $ mvn clean package
 ```
 
- MapR Streams spout and bolt example example:
+ MapR Streams spout and bolt example:
+ 
  ==========================================
 
 
@@ -67,12 +68,12 @@ From user mapr:
 
  To work with Kafka create read-topic and write-topics in Kafka.
 
-  Kafka 0.9+:
+  Kafka 0.9 and later:
   Run topology as previously.
 
   Kafka 0.9 or less:
 
-  Remove 0.9 Kafka library from ${STORM_HOME}/lib directory (kafka-clients-0.9.0.0*mapr*.jar)
+  Remove 0.9 Kafka library from ${STORM_HOME}/lib directory (kafka-clients-0.9.0.0-mapr.jar)
 
   Change
  ```
