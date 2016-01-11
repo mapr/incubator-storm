@@ -7,40 +7,51 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
-import kafka.message.Message;
+import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.common.KafkaException;
+import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class KafkaJavaApiSpout extends BaseRichSpout {
-    public static class MessageAndRealOffset {
-        public Message msg;
-        public long offset;
-
-        public MessageAndRealOffset(Message msg, long offset) {
-            this.msg = msg;
-            this.offset = offset;
-        }
-    }
 
     public static final Logger LOG = LoggerFactory.getLogger(KafkaJavaApiSpout.class);
 
+    private final List<Values> messagesList = new ArrayList<Values>();
+    private KafkaConsumer<String, byte[]> consumer;
+    private Iterator<ConsumerRecord<String, byte[]>> it;
+    private Map<TopicPartition, OffsetAndMetadata> toBeCommitted;
+    private AtomicBoolean rebalanceFlag;
+    private int batchUpperLimit;
+    private int maxBatchDurationMillis;
+    private List<String> topicList;
+    private boolean isStreams;
+    /**
+     * Lock critical section of code to be executed by one thread
+     * at the same time in order not to get a corrupted state when
+     * stopping kafka source.
+     */
+    private Lock lock;
+
     SpoutConfig _spoutConfig;
     SpoutOutputCollector _collector;
-    KafkaConsumer consumer;
     ConcurrentMap<Long, Values> messages;
     long pollTimeout;
     long maxFailCount;
 
 
-    public KafkaJavaApiSpout() {
+    protected KafkaJavaApiSpout() {
     }
 
     public KafkaJavaApiSpout(SpoutConfig spoutConfig) {
+        lock = new ReentrantLock();
         this._spoutConfig = spoutConfig;
     }
 
@@ -53,34 +64,136 @@ public class KafkaJavaApiSpout extends BaseRichSpout {
         if(conf.containsKey(Config.KAFKA_POLL_TIMEOUT)) {
             pollTimeout = (Long) conf.get(Config.KAFKA_POLL_TIMEOUT);
         }else{
-            pollTimeout = 100;
+            pollTimeout = 1000;
         }
         if(conf.containsKey(Config.KAFKA_MAX_FAIL_ATTEMPTS_COUNT)){
             maxFailCount = (Long) conf.get(Config.KAFKA_MAX_FAIL_ATTEMPTS_COUNT);
         }else{
             maxFailCount = 5;
         }
-        if(consumer == null){
-            consumer = new KafkaConsumer(conf);
-        }
-        messages = new ConcurrentHashMap<Long, Values>();
 
-        //check is multi-topic
-        if(_spoutConfig.topic == null){
-            consumer.subscribe(_spoutConfig.topics);
-        }else{
-            consumer.subscribe(Collections.singletonList(_spoutConfig.topic));
+        toBeCommitted = new HashMap<TopicPartition, OffsetAndMetadata>();
+        lock = new ReentrantLock();
+        rebalanceFlag = new AtomicBoolean(false);
+
+        // Subscribe to multiple topics. Check is multi-topic
+        topicList = _spoutConfig.topic == null ? _spoutConfig.topics : Collections.singletonList(_spoutConfig.topic);
+
+        if(topicList == null || topicList.isEmpty()) {
+            throw new KafkaException("At least one Kafka topic must be specified.");
         }
+
+        // When all specified topics start with
+        // slash then MapR Streams are used
+        isStreams = true;
+        for (String topic : topicList) {
+            if (!topic.startsWith("/")) {
+                isStreams = false;
+                break;
+            }
+        }
+
+        batchUpperLimit = conf.containsKey(KafkaSpoutConstants.BATCH_SIZE) ? (int)conf.get(KafkaSpoutConstants.BATCH_SIZE)
+                                                                            : KafkaSpoutConstants.DEFAULT_BATCH_SIZE;
+        maxBatchDurationMillis = conf.containsKey(KafkaSpoutConstants.BATCH_DURATION_MS) ? (int)conf.get(KafkaSpoutConstants.BATCH_DURATION_MS)
+                                                                                        : KafkaSpoutConstants.DEFAULT_BATCH_DURATION;
+
+        try {
+            //initialize a consumer.
+            consumer = new KafkaConsumer<String, byte[]>(conf);
+        } catch (Exception e) {
+            throw new KafkaException("Unable to create consumer. " +
+                    "Check whether the Bootstrap server is up and that the " +
+                    "Storm can connect to it.", e);
+        }
+
+        // We can use topic subscription or partition assignment strategy.
+        consumer.subscribe(topicList, new RebalanceListener(rebalanceFlag));
+
+        it = consumer.poll(pollTimeout).iterator();
+
+        LOG.info("Kafka spout started.");
     }
 
     @Override
     public void nextTuple() {
         LOG.debug("Polling next tuple...");
-        ConsumerRecords records = consumer.poll(pollTimeout);
-        for (ConsumerRecord<String, String> record : (Iterable<ConsumerRecord<String, String>>) records) {
-            Values message = new Values(record.key(), record.value(), record.topic(), maxFailCount);
-            messages.putIfAbsent(record.offset(), message);
-            _collector.emit(message, record.offset());
+        final String batchUUID = UUID.randomUUID().toString();
+        byte[] kafkaMessage;
+        String kafkaKey;
+
+        try {
+            // prepare time variables for new batch
+            final long batchStartTime = System.currentTimeMillis();
+            final long batchEndTime = System.currentTimeMillis() + maxBatchDurationMillis;
+
+            while (messagesList.size() < batchUpperLimit &&
+                    System.currentTimeMillis() < batchEndTime) {
+
+                if (it == null || !it.hasNext()) {
+                    // Obtaining new records
+                    // Poll time is remainder time for current batch.
+                    ConsumerRecords<String, byte[]> records = consumer.poll(
+                            Math.max(0, batchEndTime - System.currentTimeMillis()));
+                    it = records.iterator();
+
+                    // this flag is set to true in a callback when some partitions are revoked.
+                    // If there are any records we commit them.
+                    if (rebalanceFlag.get()) {
+                        rebalanceFlag.set(false);
+                        break;
+                    }
+                    // check records after poll
+                    if (!it.hasNext()) {
+                        LOG.debug("Returning with backoff. No more data to read");
+                        // batch time exceeded
+                        break;
+                    }
+                }
+
+                // get next message
+                ConsumerRecord<String, byte[]> message = it.next();
+                kafkaMessage = message.value();
+                kafkaKey = message.key();
+
+                LOG.debug("Message: {}", new String(kafkaMessage));
+                LOG.debug("Topic: {} Partition: {}", message.topic(), message.partition());
+
+                Values value = new Values(kafkaKey, kafkaMessage, message.topic(), maxFailCount);
+                messagesList.add(value);
+                messages.putIfAbsent(message.offset(), value);
+
+                LOG.debug("Waited: {} ", System.currentTimeMillis() - batchStartTime);
+                LOG.debug("Messages #: {}", messagesList.size());
+
+
+                // For MapR Streams we need to commit offset of record X (not X+1 as for Kafka)
+                // when we want to fetch a record X+1 for the next poll after rebalance.
+                long offset = isStreams ? message.offset() : message.offset() + 1;
+                toBeCommitted.put(new TopicPartition(message.topic(), message.partition()),
+                        new OffsetAndMetadata(offset, batchUUID));
+            }
+
+            if (messagesList.size() > 0) {
+
+                for (Values v : messagesList){
+                    _collector.emit(v);
+                }
+
+                LOG.debug("Emitted {}", messagesList.size());
+
+                messagesList.clear();
+                // commit must not be interrupted when stops.
+                try {
+                    lock.lock();
+                    consumer.commitSync(toBeCommitted);
+                    toBeCommitted.clear();
+                } finally {
+                    lock.unlock();
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("KafkaJavaApiSpout EXCEPTION, {}", e);
         }
     }
 
@@ -105,7 +218,16 @@ public class KafkaJavaApiSpout extends BaseRichSpout {
 
     @Override
     public void close() {
-        consumer.close();
+        if (consumer != null) {
+            try {
+                lock.lock();
+                consumer.wakeup();
+                consumer.close();
+            } finally {
+                lock.unlock();
+            }
+        }
+        LOG.info("Kafka Spout stopped.");
     }
 
     @Override
@@ -113,6 +235,43 @@ public class KafkaJavaApiSpout extends BaseRichSpout {
         declarer.declare(new Fields("key", "message", "topic", "attempt"));
     }
 
+    public class KafkaSpoutConstants {
 
+        public static final String KAFKA_PREFIX = "kafka.";
+        public static final String KAFKA_CONSUMER_PREFIX = KAFKA_PREFIX + "consumer.";
+        public static final String DEFAULT_KEY_DESERIALIZER = "org.apache.kafka.common.serialization.StringDeserializer";
+        public static final String DEFAULT_VALUE_DESERIAIZER = "org.apache.kafka.common.serialization.ByteArrayDeserializer";
+        public static final String BOOTSTRAP_SERVERS = CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG;
+        public static final String TOPICS = KAFKA_PREFIX + "topics";
+        public static final String DEFAULT_AUTO_COMMIT =  "false";
+        public static final String BATCH_SIZE = "batchSize";
+        public static final String BATCH_DURATION_MS = "batchDurationMillis";
+        public static final int DEFAULT_BATCH_SIZE = 1000;
+        public static final int DEFAULT_BATCH_DURATION = 1000;
 
+    }
+
+}
+
+class RebalanceListener implements ConsumerRebalanceListener {
+    private static final Logger log = LoggerFactory.getLogger(RebalanceListener.class);
+    private AtomicBoolean rebalanceFlag;
+
+    public RebalanceListener(AtomicBoolean rebalanceFlag) {
+        this.rebalanceFlag = rebalanceFlag;
+    }
+
+    // Set a flag that a rebalance has occurred. Then commit already read to kafka.
+    public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+        for (TopicPartition partition : partitions) {
+            log.info("topic {} - partition {} revoked.", partition.topic(), partition.partition());
+            rebalanceFlag.set(true);
+        }
+    }
+
+    public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+        for (TopicPartition partition : partitions) {
+            log.info("topic {} - partition {} assigned.", partition.topic(), partition.partition());
+        }
+    }
 }
