@@ -80,7 +80,7 @@ In `pom.xml` uncomment following lines:
         <!--=== For HBase 1.1 ====-->
         <!--      <dependency>
                   <groupId>org.apache.hbase</groupId>
-                  <artifactId>hbase</artifactId>
+                  <artifactId>hbase-client</artifactId>
                   <version>1.1.1-mapr-1508-SNAPSHOT</version>
                   <exclusions>
                       <exclusion>
