@@ -37,7 +37,7 @@ public class AverageCountBolt<K,V>  implements IRichBolt {
             long cachedCount = count;
             count = 0;
             LOG.info("Got tick tuple, emitting count={}", cachedCount);
-            collector.emit(new Values("", String.valueOf(cachedCount)));
+            collector.emit(new Values("", String.valueOf(cachedCount).getBytes()));
 
         }else{
             count++;

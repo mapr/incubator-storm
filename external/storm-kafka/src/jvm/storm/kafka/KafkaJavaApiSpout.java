@@ -7,7 +7,6 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
-import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
@@ -15,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
@@ -46,12 +46,9 @@ public class KafkaJavaApiSpout extends BaseRichSpout {
     long pollTimeout;
     long maxFailCount;
 
-
-    protected KafkaJavaApiSpout() {
-    }
-
     public KafkaJavaApiSpout(SpoutConfig spoutConfig) {
         lock = new ReentrantLock();
+        messages = new ConcurrentHashMap<>();
         this._spoutConfig = spoutConfig;
     }
 
@@ -73,7 +70,6 @@ public class KafkaJavaApiSpout extends BaseRichSpout {
         }
 
         toBeCommitted = new HashMap<TopicPartition, OffsetAndMetadata>();
-        lock = new ReentrantLock();
         rebalanceFlag = new AtomicBoolean(false);
 
         // Subscribe to multiple topics. Check is multi-topic
@@ -237,13 +233,6 @@ public class KafkaJavaApiSpout extends BaseRichSpout {
 
     public class KafkaSpoutConstants {
 
-        public static final String KAFKA_PREFIX = "kafka.";
-        public static final String KAFKA_CONSUMER_PREFIX = KAFKA_PREFIX + "consumer.";
-        public static final String DEFAULT_KEY_DESERIALIZER = "org.apache.kafka.common.serialization.StringDeserializer";
-        public static final String DEFAULT_VALUE_DESERIAIZER = "org.apache.kafka.common.serialization.ByteArrayDeserializer";
-        public static final String BOOTSTRAP_SERVERS = CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG;
-        public static final String TOPICS = KAFKA_PREFIX + "topics";
-        public static final String DEFAULT_AUTO_COMMIT =  "false";
         public static final String BATCH_SIZE = "batchSize";
         public static final String BATCH_DURATION_MS = "batchDurationMillis";
         public static final int DEFAULT_BATCH_SIZE = 1000;
@@ -265,8 +254,8 @@ class RebalanceListener implements ConsumerRebalanceListener {
     public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
         for (TopicPartition partition : partitions) {
             log.info("topic {} - partition {} revoked.", partition.topic(), partition.partition());
-            rebalanceFlag.set(true);
         }
+        rebalanceFlag.set(true);
     }
 
     public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
