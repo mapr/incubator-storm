@@ -257,6 +257,16 @@
             <outputDirectory>${storm.dir}/examples/storm-starter/</outputDirectory>
             <destName>storm-starter-topologies-${project.version}.jar</destName>
         </file>
+        <file>
+            <source>${project.basedir}/../../examples/stormStreamsTest/target/storm-streams-test-1.0-jar-with-dependencies.jar</source>
+            <outputDirectory>${storm.dir}/examples/stormStreamsTest/</outputDirectory>
+            <destName>storm-streams-test-1.0-jar-with-dependencies.jar</destName>
+        </file>
+        <file>
+            <source>${project.basedir}/../../examples/stormStreamsTest/marlin-jar-with-dependencies.jar</source>
+            <outputDirectory>${storm.dir}/examples/stormStreamsTest/</outputDirectory>
+            <destName>marlin-jar-with-dependencies.jar</destName>
+        </file>
 
 
         <!--

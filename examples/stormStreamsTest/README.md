@@ -9,7 +9,8 @@ $ mvn clean package
  ==========================================
 
 
- Download marlin-jar-with-dependencies.jar
+  The marlin-jar-with-dependencies.jar is a jar that contains Kafka 0.9 producer and consumer classes.
+  It located in example root folder
 
  Do
 

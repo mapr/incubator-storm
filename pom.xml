@@ -230,6 +230,7 @@
         <module>external/storm-eventhubs</module>
         <module>external/flux</module>
         <module>examples/storm-starter</module>
+        <module>examples/stormStreamsTest</module>
     </modules>
     <distributionManagement>
         <repository>
