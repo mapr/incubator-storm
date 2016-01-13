@@ -45,10 +45,10 @@ public class AggregationBolt<K,V>  implements IRichBolt {
     public void execute(Tuple tuple) {
         if(isTickTuple(tuple)){
             for(Tuple t : batch){
-                collector.emit(t, new Values(t.getValueByField(DemoTopology.KEY_FIELD),
-                        t.getValueByField(DemoTopology.MESSAGE_FIELD),
-                        t.getValueByField(DemoTopology.TOPIC_FIELD),
-                        t.getValueByField(DemoTopology.ATTEMP_FIELD)));
+                collector.emit(t, new Values(t.contains(DemoTopology.KEY_FIELD) ? t.getValueByField(DemoTopology.KEY_FIELD) : "",
+                        t.contains(DemoTopology.MESSAGE_FIELD) ? ((String)t.getValueByField(DemoTopology.MESSAGE_FIELD)).getBytes() : "",
+                        t.contains(DemoTopology.TOPIC_FIELD) ? t.getValueByField(DemoTopology.TOPIC_FIELD) : "",
+                        t.contains(DemoTopology.ATTEMP_FIELD) ? t.getValueByField(DemoTopology.ATTEMP_FIELD) : ""));
                 collector.ack(t);
             }
             batch.clear();
