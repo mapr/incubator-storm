@@ -13,22 +13,20 @@ public class KafkaTestTopology {
     private final static String PRINT_BOLT = "printBolt";
 
     public static void main(String[] args) throws AlreadyAliveException, InvalidTopologyException {
-        if (args.length < 2) {
-            System.out.println("Usage: [topic name] [zookeeper host:port]");
+        if (args.length < 3) {
+            System.out.println("Usage: [topic name] [zookeeper host:port] [topology name]");
             return;
         }
 
-        KafkaSpout.a_zookeeper = args[1];
-        KafkaSpout kafkaSpout = new KafkaSpout(args[0]);
-
+        KafkaSpout kafkaSpout = new KafkaSpout(args[0], args[1]);
 
         TopologyBuilder builder = new TopologyBuilder();
         builder.setSpout(KAFKA_SPOUT, kafkaSpout).setMaxSpoutPending(200);
         builder.setBolt(PRINT_BOLT, new PrintBolt()).shuffleGrouping(KAFKA_SPOUT);
 
         Config config = new Config();
-        if (args != null && args.length > 0) {
-            StormSubmitter.submitTopologyWithProgressBar(args[1], config, builder.createTopology());
+        if (args.length > 0) {
+            StormSubmitter.submitTopologyWithProgressBar(args[2], config, builder.createTopology());
         } else {
             LocalCluster cluster = new LocalCluster();
             cluster.submitTopology("KafkaTestTopology", config, builder.createTopology());

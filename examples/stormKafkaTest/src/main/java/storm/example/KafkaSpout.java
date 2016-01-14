@@ -19,13 +19,18 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class KafkaSpout extends BaseRichSpout {
     private String queueName;
     private SpoutOutputCollector collector;
-    public static String a_zookeeper = "";
+    private String zooConnect;
     static String a_groupId = "1";
 
     private BlockingQueue<String> bq = new LinkedBlockingDeque<String>();
 
     public KafkaSpout(String queueName) {
         this.queueName = queueName;
+        zooConnect = "localhost:5181";
+    }
+    public KafkaSpout(String queueName, String zooConnect){
+        this.queueName = queueName;
+        this.zooConnect = zooConnect;
     }
 
     @Override
@@ -39,7 +44,7 @@ public class KafkaSpout extends BaseRichSpout {
         new Thread() {
             @Override
             public void run() {
-                kafka.javaapi.consumer.ConsumerConnector consumer = kafka.consumer.Consumer.createJavaConsumerConnector(createConsumerConfig(a_zookeeper, a_groupId));
+                kafka.javaapi.consumer.ConsumerConnector consumer = kafka.consumer.Consumer.createJavaConsumerConnector(createConsumerConfig(zooConnect, a_groupId));
                 Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
                 topicCountMap.put(queueName, new Integer(1));
                 Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap = consumer.createMessageStreams(topicCountMap);
@@ -56,9 +61,10 @@ public class KafkaSpout extends BaseRichSpout {
         }.start();
     }
 
-    private static ConsumerConfig createConsumerConfig(String a_zookeeper, String a_groupId) {
+    private static ConsumerConfig createConsumerConfig(String zooConnect, String a_groupId) {
         Properties props = new Properties();
-        props.put("zookeeper.connect", a_zookeeper);
+        props.put("zookeeper.connect", zooConnect);
+        System.out.println("Will connect to Zoo at " + zooConnect);
         props.put("group.id", a_groupId);
         props.put("zookeeper.session.timeout.ms", "400");
         props.put("zookeeper.sync.time.ms", "200");
