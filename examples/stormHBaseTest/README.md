@@ -4,6 +4,25 @@ Build project:
 $ mvn clean package
 ```
 
+WARN:
+If cluster security is Kerberos, then follow next four steps:
+1. cp /opt/mapr/hbase/hbase-<version>/conf/hbase-site.xml /opt/mapr/storm/storm-<version>/stormHBaseTest/
+2. On YARN: cp /opt/mapr/hadoop/hadoop-<version>/etc/hadoop/core-site.xml /opt/mapr/storm/storm-<version>/stormHBaseTest/
+   On Classic: cp /opt/mapr/hadoop/hadoop-<version>/conf/core-site.xml /opt/mapr/storm/storm-<version>/stormHBaseTest/
+3. Add
+```
+<property>
+  <name>hadoop.login</name>
+  <value>kerberos</value>
+</property>
+```
+to /opt/mapr/storm/storm-<version>/stormHBaseTest/core-site.xml
+4.
+```
+zip -j /opt/mapr/storm/storm-<version>/stormHBaseTest/target/storm-maprdbtable-tests-1.0-jar-with-dependencies.jar /opt/mapr/storm/storm-<version>/stormHBaseTest/core-site.xml
+zip -j /opt/mapr/storm/storm-<version>/stormHBaseTest/target/storm-maprdbtable-tests-1.0-jar-with-dependencies.jar /opt/mapr/storm/storm-<version>/stormHBaseTest/hbase-site.xml
+```
+
 Use the `hbase shell` command to create the schema:
 ```
 > create 'WordCount', 'cf'

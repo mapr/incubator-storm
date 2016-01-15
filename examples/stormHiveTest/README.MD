@@ -4,6 +4,25 @@ Build project:
 $ mvn clean package
 ```
 
+WARN:
+If cluster security is Kerberos, then follow next four steps:
+1. cp /opt/mapr/hive/hive-<version>/conf/hive-site.xml /opt/mapr/storm/storm-<version>/stormHiveTest/
+2. On YARN: cp /opt/mapr/hadoop/hadoop-<version>/etc/hadoop/core-site.xml /opt/mapr/storm/storm-<version>/stormHiveTest/
+   On Classic: cp /opt/mapr/hadoop/hadoop-<version>/conf/core-site.xml /opt/mapr/storm/storm-<version>/stormHiveTest/
+3. Add
+```
+<property>
+  <name>hadoop.login</name>
+  <value>kerberos</value>
+</property>
+```
+to /opt/mapr/storm/storm-<version>/stormHiveTest/core-site.xml
+4.
+```
+zip -j /opt/mapr/storm/storm-<version>/stormHiveTest/target/storm-hive-test-1.0-jar-with-dependencies.jar /opt/mapr/storm/storm-<version>/stormHiveTest/core-site.xml
+zip -j /opt/mapr/storm/storm-<version>/stormHiveTest/target/storm-hive-test-1.0-jar-with-dependencies.jar /opt/mapr/storm/storm-<version>/stormHiveTest/hbase-site.xml
+```
+
 Use the `hive shell` command to create the table:
 
 ```
