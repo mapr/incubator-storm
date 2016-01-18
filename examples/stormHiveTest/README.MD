@@ -21,7 +21,7 @@ to ```/opt/mapr/storm/storm-<version>/stormHiveTest/examples/core-site.xml``` <b
 4. Add Hive config xml to topology jar<br />
 ```
 zip -j /opt/mapr/storm/storm-<version>/examples/stormHiveTest/target/storm-hive-test-1.0-jar-with-dependencies.jar /opt/mapr/storm/storm-<version>/examples/stormHiveTest/core-site.xml
-zip -j /opt/mapr/storm/storm-<version>/examples/stormHiveTest/target/storm-hive-test-1.0-jar-with-dependencies.jar /opt/mapr/storm/storm-<version>/examples/stormHiveTest/hbase-site.xml
+zip -j /opt/mapr/storm/storm-<version>/examples/stormHiveTest/target/storm-hive-test-1.0-jar-with-dependencies.jar /opt/mapr/storm/storm-<version>/examples/stormHiveTest/hive-site.xml
 ```
 
 Use the `hive shell` command to create the table:
