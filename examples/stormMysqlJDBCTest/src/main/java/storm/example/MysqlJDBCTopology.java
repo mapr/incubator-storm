@@ -2,6 +2,8 @@ package storm.example;
 
 import backtype.storm.Config;
 import backtype.storm.StormSubmitter;
+import backtype.storm.generated.SubmitOptions;
+import backtype.storm.generated.TopologyInitialStatus;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import com.google.common.collect.Lists;
@@ -34,7 +36,7 @@ public class MysqlJDBCTopology {
             " and user_department.user_id = ?";
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 3 && args.length != 4) {
+        if (args.length != 3 && args.length < 4) {
             System.out.println("Usage: " + " <dataSource.url> "
                     + "<user> <password> [topology name]");
             System.exit(-1);
@@ -84,7 +86,7 @@ public class MysqlJDBCTopology {
             cluster.shutdown();
             System.exit(0);
         } else {
-            StormSubmitter.submitTopology(args[3], config, builder.createTopology());
+            StormSubmitter.submitTopologyAs(args[3], config, builder.createTopology(), new SubmitOptions(TopologyInitialStatus.ACTIVE), null, args[4]);
         }
     }
 }
