@@ -36,12 +36,12 @@ $ mvn clean package -DdataSourceUrl="[datasource url]" -DuserName="[userName]" -
 
 Run the
 ```
-storm jar target/storm-JDBC-test-1.0-SNAPSHOT-jar-with-dependencies.jar storm.example.MysqlJDBCTopology [datasource url] [userName] [password] [topology-name] [user submitter]
+storm jar target/storm-JDBC-test-1.0-SNAPSHOT-jar-with-dependencies.jar storm.example.MysqlJDBCTopology [datasource url] [userName] [password] [topology-name]
 ```
 
 **use your user and password**
 
-***Example*** `storm jar storm-JDBC-test-1.0-SNAPSHOT-jar-with-dependencies.jar storm.example.MysqlJDBCTopology jdbc:mysql://localhost/test root 123456 jdbcTest mapr`
+***Example*** `storm jar storm-JDBC-test-1.0-SNAPSHOT-jar-with-dependencies.jar storm.example.MysqlJDBCTopology jdbc:mysql://localhost/test root 123456`
 
 Use the `mysql shell` to check data at table.
 
