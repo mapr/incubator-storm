@@ -1,3 +1,8 @@
+## 0.10.1
+ * STORM-1481: avoid Math.abs(Integer) get a negative value
+ * STORM-1121: Deprecate test only configuraton nimbus.reassign
+ * STORM-1180: FLUX logo wasn't appearing quite right
+
 ## 0.10.0
  * STORM-1108: Fix NPE in simulated time
  * STORM-1106: Netty should not limit attempts to reconnect
