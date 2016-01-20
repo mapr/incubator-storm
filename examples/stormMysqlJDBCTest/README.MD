@@ -41,7 +41,7 @@ storm jar target/storm-JDBC-test-1.0-SNAPSHOT-jar-with-dependencies.jar storm.ex
 
 **use your user and password**
 
-***Example*** `storm jar storm-JDBC-test-1.0-SNAPSHOT-jar-with-dependencies.jar storm.example.MysqlJDBCTopology jdbc:mysql://localhost/test root 123456`
+***Example*** `storm jar storm-JDBC-test-1.0-SNAPSHOT-jar-with-dependencies.jar storm.example.MysqlJDBCTopology jdbc:mysql://localhost/test root 123456 jdbcExample`
 
 Use the `mysql shell` to check data at table.
 
