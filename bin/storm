@@ -74,6 +74,16 @@ if  [ -x "$(command -v mapr)" ]; then
   MARLIN_CLASSPATH=`mapr classpath` >/dev/null 2>&1
 fi
 
+# Find hadoop home
+export BASEMAPR=${MAPR_HOME:-/opt/mapr}
+export MAPR_LIB_DIR="${BASEMAPR}/lib"
+export MAPR_STREAMS=$(ls ${MAPR_LIB_DIR}/mapr-streams*.jar 2> /dev/null | grep -v "tests.jar$" )
+export STREAMS_CLIENT=$(ls ${MAPR_LIB_DIR}/kafka-clients*.jar 2> /dev/null)
+ln -s `echo $MAPR_STREAMS` ${STORM_BIN_DIR}/../lib/ 2> /dev/null
+ln -s `echo $STREAMS_CLIENT` ${STORM_BIN_DIR}/../lib/ 2> /dev/null
+
+
+
 if [ -f "${STORM_CONF_DIR}/storm-env.sh" ]; then
   . "${STORM_CONF_DIR}/storm-env.sh"
 fi
