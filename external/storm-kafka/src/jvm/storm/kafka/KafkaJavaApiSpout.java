@@ -32,7 +32,6 @@ public class KafkaJavaApiSpout extends BaseRichSpout {
     private int batchUpperLimit;
     private int maxBatchDurationMillis;
     private List<String> topicList;
-    private boolean isStreams;
     /**
      * Lock critical section of code to be executed by one thread
      * at the same time in order not to get a corrupted state when
@@ -77,16 +76,6 @@ public class KafkaJavaApiSpout extends BaseRichSpout {
 
         if(topicList == null || topicList.isEmpty()) {
             throw new KafkaException("At least one Kafka topic must be specified.");
-        }
-
-        // When all specified topics start with
-        // slash then MapR Streams are used
-        isStreams = true;
-        for (String topic : topicList) {
-            if (!topic.startsWith("/")) {
-                isStreams = false;
-                break;
-            }
         }
 
         batchUpperLimit = conf.containsKey(KafkaSpoutConstants.BATCH_SIZE) ? (int)conf.get(KafkaSpoutConstants.BATCH_SIZE)
@@ -162,10 +151,7 @@ public class KafkaJavaApiSpout extends BaseRichSpout {
                 LOG.debug("Waited: {} ", System.currentTimeMillis() - batchStartTime);
                 LOG.debug("Messages #: {}", messagesList.size());
 
-
-                // For MapR Streams we need to commit offset of record X (not X+1 as for Kafka)
-                // when we want to fetch a record X+1 for the next poll after rebalance.
-                long offset = isStreams ? message.offset() : message.offset() + 1;
+                long offset = message.offset() + 1;
                 toBeCommitted.put(new TopicPartition(message.topic(), message.partition()),
                         new OffsetAndMetadata(offset, batchUUID));
             }
