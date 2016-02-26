@@ -29,14 +29,14 @@
         <dependency>
             <groupId>org.apache.storm</groupId>
             <artifactId>storm-core</artifactId>
-            <version>0.10.0</version>
+            <version>0.10.0-mapr-1602</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.storm</groupId>
             <artifactId>storm-hive</artifactId>
-            <version>0.10.0</version>
+            <version>0.10.0-mapr-1602</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.hadoop</groupId>
