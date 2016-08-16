@@ -56,9 +56,9 @@ public class IsolationWordCountTopology {
     }
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 2) {
-            System.out.println("Usage: " + " <topology-name> "
-                    + "<userName>");
+        if (args.length > 3 || args.length < 2) {
+            System.out.println("Usage: " + "<topology-name> "
+                    + "<userName> " + " <file location>");
             System.exit(-1);
         }
 
@@ -68,6 +68,7 @@ public class IsolationWordCountTopology {
 
         builder.setBolt("split", new SplitSentence(), 8).shuffleGrouping("spout");
         builder.setBolt("count", new WordCount(), 12).fieldsGrouping("split", new Fields("word"));
+        builder.setBolt("writer", new OutputBolt(args[2]), 1).fieldsGrouping("count" , new Fields("word", "count"));
 
         Config conf = new Config();
         conf.setDebug(true);
