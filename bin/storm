@@ -69,10 +69,6 @@ fi
 export STORM_CONF_DIR="${STORM_CONF_DIR:-$STORM_BASE_DIR/conf}"
 export STORM_CONF_FILE="${STORM_CONF_FILE:-$STORM_BASE_DIR/conf/storm.yaml}"
 export MARLIN_CLASSPATH=''
-if  [ -x "$(command -v mapr)" ]; then
-  echo 'Found cluster version 5.1+' >&2
-  MARLIN_CLASSPATH=`mapr classpath` >/dev/null 2>&1
-fi
 
 # Find hadoop home
 export BASEMAPR=${MAPR_HOME:-/opt/mapr}
