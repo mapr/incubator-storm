@@ -27,7 +27,7 @@
         <dependency>
             <groupId>org.apache.storm</groupId>
             <artifactId>storm-kafka</artifactId>
-            <version>0.10.0-mapr</version>
+            <version>0.10.0-mapr-1607</version>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.apache.storm</groupId>
             <artifactId>storm-core</artifactId>
-            <version>0.10.0-mapr</version>
+            <version>0.10.0-mapr-1607</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -50,7 +50,7 @@
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka_2.10</artifactId>
-            <version>0.9.0.0</version>
+            <version>0.9.0.0-mapr-1607</version>
             <!--<version>0.9.0.0</version>-->
             <!-- use provided scope, so users can pull in whichever scala version they choose -->
             <scope>compile</scope>
@@ -72,7 +72,7 @@
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
-            <version>0.9.0.0</version>
+            <version>0.9.0.0-mapr-1607</version>
             <!--<version>0.9.0.0</version>-->
             <scope>provided</scope>
         </dependency>
