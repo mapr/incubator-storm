@@ -34,14 +34,14 @@
       <dependency>
           <groupId>org.apache.storm</groupId>
           <artifactId>storm-core</artifactId>
-          <version>0.10.0-mapr-1607</version>
+          <version>0.10.0-mapr-1609</version>
           <scope>provided</scope>
       </dependency>
 
       <dependency>
           <groupId>org.apache.storm</groupId>
           <artifactId>storm-hbase</artifactId>
-          <version>0.10.0-mapr-1602</version>
+          <version>0.10.0-mapr-1609</version>
       </dependency>
 
       <dependency>

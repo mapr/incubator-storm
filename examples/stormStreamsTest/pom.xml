@@ -27,7 +27,7 @@
         <dependency>
             <groupId>org.apache.storm</groupId>
             <artifactId>storm-kafka</artifactId>
-            <version>0.10.0-mapr-1607</version>
+            <version>0.10.0-mapr-1609</version>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.apache.storm</groupId>
             <artifactId>storm-core</artifactId>
-            <version>0.10.0-mapr-1607</version>
+            <version>0.10.0-mapr-1609</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
