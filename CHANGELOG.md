@@ -1,3 +1,14 @@
+## 0.10.2
+ * STORM-2042: Nimbus client connections not closed properly causing connection leaks
+ * STORM-1609: Netty Client is not best effort delivery on failed Connection
+ * STORM-1928: ShellSpout should check heartbeat while ShellSpout is waiting for subprocess to sync
+ * STORM-1989: X-Frame-Options support for Storm UI
+ * STORM-1834: Documentation How to Generate Certificates For Local Testing SSL Setup
+ * STORM-1754: Correct java version in 0.10.x storm-starter
+ * STORM-1750: Ensure worker dies when report-error-and-die is called.
+ * STORM-1739: update the minor JAVA version dependency in 0.10.0 and above
+ * STORM-1733: Flush stdout and stderr before calling "os.execvp" to prevent log loss
+
 ## 0.10.1
  * STORM-1731: Avoid looking up debug enable flags within critical path
  * STORM-1645: convert nimbus.thrift.port to int to avoid ClassCastException
