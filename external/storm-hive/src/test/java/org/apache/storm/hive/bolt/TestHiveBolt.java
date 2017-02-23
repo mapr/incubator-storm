@@ -18,15 +18,15 @@
 
 package org.apache.storm.hive.bolt;
 
-import backtype.storm.Config;
-import backtype.storm.task.GeneralTopologyContext;
-import backtype.storm.task.IOutputCollector;
-import backtype.storm.task.OutputCollector;
-import backtype.storm.topology.TopologyBuilder;
-import backtype.storm.tuple.Fields;
-import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.TupleImpl;
-import backtype.storm.tuple.Values;
+import org.apache.storm.Config;
+import org.apache.storm.task.GeneralTopologyContext;
+import org.apache.storm.task.OutputCollector;
+import org.apache.storm.topology.TopologyBuilder;
+import org.apache.storm.tuple.Fields;
+import org.apache.storm.tuple.Tuple;
+import org.apache.storm.tuple.TupleImpl;
+import org.apache.storm.tuple.Values;
+import org.apache.storm.utils.MockTupleHelpers;
 
 import org.apache.storm.hive.common.HiveOptions;
 import org.apache.storm.hive.bolt.mapper.DelimitedRecordHiveMapper;
@@ -205,7 +205,7 @@ public class TestHiveBolt {
     @Test
     public void testWithTimeformat()
         throws Exception {
-        String[] partNames1 = {"date"};
+        String[] partNames1 = {"dt"};
         String timeFormat = "yyyy/MM/dd";
         HiveSetupUtil.dropDB(conf,dbName1);
         HiveSetupUtil.createDbAndTable(conf, dbName1, tblName1, null,
@@ -214,8 +214,9 @@ public class TestHiveBolt {
             .withColumnFields(new Fields(colNames))
             .withTimeAsPartitionField(timeFormat);
         HiveOptions hiveOptions = new HiveOptions(metaStoreURI,dbName1,tblName1,mapper)
-            .withTxnsPerBatch(2)
-            .withBatchSize(1);
+                .withTxnsPerBatch(2)
+                .withBatchSize(1)
+                .withMaxOpenConnections(1);
         bolt = new HiveBolt(hiveOptions);
         bolt.prepare(config,null,collector);
         Integer id = 100;
@@ -321,7 +322,7 @@ public class TestHiveBolt {
 
         //This forces a failure of all the flush attempts
         doThrow(new InterruptedException()).when(spyBolt).flushAllWriters(true);
-        doThrow(new Exception()).when(spyBolt).flushAndCloseWriters();
+
 
         spyBolt.prepare(config, null, new OutputCollector(collector));
 
@@ -335,6 +336,59 @@ public class TestHiveBolt {
         verify(collector, never()).ack(tuple2);
 
         spyBolt.cleanup();
+    }
+
+    @Test
+    public void testTickTuple()
+    {
+        JsonRecordHiveMapper mapper = new JsonRecordHiveMapper()
+                .withColumnFields(new Fields(colNames1))
+                .withPartitionFields(new Fields(partNames));
+        HiveOptions hiveOptions = new HiveOptions(metaStoreURI,dbName,tblName,mapper)
+                .withTxnsPerBatch(2)
+                .withBatchSize(2);
+
+        bolt = new HiveBolt(hiveOptions);
+        bolt.prepare(config, null, new OutputCollector(collector));
+
+        Tuple tuple1 = generateTestTuple(1, "SJC", "Sunnyvale", "CA");
+        Tuple tuple2 = generateTestTuple(2, "SFO", "San Jose", "CA");
+
+
+        bolt.execute(tuple1);
+
+        //The tick should cause tuple1 to be ack'd
+        Tuple mockTick = MockTupleHelpers.mockTickTuple();
+        bolt.execute(mockTick);
+        verify(collector).ack(tuple1);
+
+        //The second tuple should NOT be ack'd because the batch should be cleared and this will be
+        //the first transaction in the new batch
+        bolt.execute(tuple2);
+        verify(collector, never()).ack(tuple2);
+
+        bolt.cleanup();
+    }
+
+    @Test
+    public void testNoTickEmptyBatches() throws Exception
+    {
+        JsonRecordHiveMapper mapper = new JsonRecordHiveMapper()
+                .withColumnFields(new Fields(colNames1))
+                .withPartitionFields(new Fields(partNames));
+        HiveOptions hiveOptions = new HiveOptions(metaStoreURI,dbName,tblName,mapper)
+                .withTxnsPerBatch(2)
+                .withBatchSize(2);
+
+        bolt = new HiveBolt(hiveOptions);
+        bolt.prepare(config, null, new OutputCollector(collector));
+
+        //The tick should NOT cause any acks since the batch was empty except for acking itself
+        Tuple mockTick = MockTupleHelpers.mockTickTuple();
+        bolt.execute(mockTick);
+        verifyZeroInteractions(collector);
+
+        bolt.cleanup();
     }
 
     @Test
