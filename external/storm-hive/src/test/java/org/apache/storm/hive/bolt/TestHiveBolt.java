@@ -20,7 +20,6 @@ package org.apache.storm.hive.bolt;
 
 import backtype.storm.Config;
 import backtype.storm.task.GeneralTopologyContext;
-import backtype.storm.task.IOutputCollector;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
@@ -45,9 +44,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.MockitoAnnotations;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
+
 import junit.framework.Assert;
 
 import org.slf4j.Logger;
@@ -58,12 +60,16 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Set;
+import java.util.HashSet;
 import java.text.SimpleDateFormat;
 
 
 import org.apache.hive.hcatalog.streaming.*;
 
 public class TestHiveBolt {
+    final static  String SYSTEM_COMPONENT_ID = "__system";
+    final static String SYSTEM_TICK_STREAM_ID = "__tick";
     final static String dbName = "testdb";
     final static String tblName = "test_table";
     final static String dbName1 = "testdb1";
@@ -90,8 +96,7 @@ public class TestHiveBolt {
     public TemporaryFolder dbFolder = new TemporaryFolder();
 
     @Mock
-    private IOutputCollector collector;
-
+    private OutputCollector collector;
 
     private static final Logger LOG = LoggerFactory.getLogger(HiveBolt.class);
 
@@ -129,11 +134,11 @@ public class TestHiveBolt {
         // 1) Basic
         HiveEndPoint endPt = new HiveEndPoint(metaStoreURI, dbName, tblName
                                               , Arrays.asList(partitionVals.split(",")));
-        StreamingConnection connection = endPt.newConnection(false, null); //shouldn't throw
+        StreamingConnection connection = endPt.newConnection(false, ""); //shouldn't throw
         connection.close();
         // 2) Leave partition unspecified
         endPt = new HiveEndPoint(metaStoreURI, dbName, tblName, null);
-        endPt.newConnection(false, null).close(); // should not throw
+        endPt.newConnection(false, "").close(); // should not throw
     }
 
     @Test
@@ -146,17 +151,21 @@ public class TestHiveBolt {
             .withTxnsPerBatch(2)
             .withBatchSize(2);
         bolt = new HiveBolt(hiveOptions);
-        bolt.prepare(config,null,new OutputCollector(collector));
+        bolt.prepare(config,null,collector);
         Integer id = 100;
         String msg = "test-123";
         String city = "sunnyvale";
         String state = "ca";
-        checkRecordCountInTable(tblName,dbName,0);
+        checkRecordCountInTable(tblName, dbName, 0);
+
+        Set<Tuple> tupleSet = new HashSet<Tuple>();
         for (int i=0; i < 4; i++) {
             Tuple tuple = generateTestTuple(id,msg,city,state);
             bolt.execute(tuple);
-            verify(collector).ack(tuple);
+            tupleSet.add(tuple);
         }
+        for (Tuple t : tupleSet)
+            verify(collector).ack(t);
         checkRecordCountInTable(tblName, dbName, 4);
         bolt.cleanup();
     }
@@ -175,17 +184,21 @@ public class TestHiveBolt {
             .withBatchSize(2)
             .withAutoCreatePartitions(false);
         bolt = new HiveBolt(hiveOptions);
-        bolt.prepare(config,null,new OutputCollector(collector));
+        bolt.prepare(config,null,collector);
         Integer id = 100;
         String msg = "test-123";
         String city = "sunnyvale";
         String state = "ca";
         checkRecordCountInTable(tblName1,dbName1,0);
+
+        Set<Tuple> tupleSet = new HashSet<Tuple>();
         for (int i=0; i < 4; i++) {
             Tuple tuple = generateTestTuple(id,msg,city,state);
             bolt.execute(tuple);
-            verify(collector).ack(tuple);
+            tupleSet.add(tuple);
         }
+        for (Tuple t : tupleSet)
+            verify(collector).ack(t);
         bolt.cleanup();
         checkRecordCountInTable(tblName1, dbName1, 4);
     }
@@ -193,31 +206,36 @@ public class TestHiveBolt {
     @Test
     public void testWithTimeformat()
         throws Exception {
-        String[] partNames1 = {"date"};
+        String[] partNames1 = {"dt"};
         String timeFormat = "yyyy/MM/dd";
         HiveSetupUtil.dropDB(conf,dbName1);
-        HiveSetupUtil.createDbAndTable(conf, dbName1, tblName1,null,
-                                       colNames,colTypes,partNames1, dbLocation);
+        HiveSetupUtil.createDbAndTable(conf, dbName1, tblName1, null,
+                colNames, colTypes, partNames1, dbLocation);
         DelimitedRecordHiveMapper mapper = new DelimitedRecordHiveMapper()
             .withColumnFields(new Fields(colNames))
             .withTimeAsPartitionField(timeFormat);
         HiveOptions hiveOptions = new HiveOptions(metaStoreURI,dbName1,tblName1,mapper)
-            .withTxnsPerBatch(2)
-            .withBatchSize(1);
+                .withTxnsPerBatch(2)
+                .withBatchSize(1)
+                .withMaxOpenConnections(1);
         bolt = new HiveBolt(hiveOptions);
-        bolt.prepare(config,null,new OutputCollector(collector));
+        bolt.prepare(config,null,collector);
         Integer id = 100;
         String msg = "test-123";
         Date d = new Date();
         SimpleDateFormat parseDate = new SimpleDateFormat(timeFormat);
         String today=parseDate.format(d.getTime());
-        checkRecordCountInTable(tblName1,dbName1,0);
+        checkRecordCountInTable(tblName1, dbName1, 0);
+
+        Set<Tuple> tupleSet = new HashSet<Tuple>();
         for (int i=0; i < 2; i++) {
             Tuple tuple = generateTestTuple(id,msg,null,null);
+            tupleSet.add(tuple);
             bolt.execute(tuple);
-            verify(collector).ack(tuple);
         }
-        checkDataWritten(tblName1, dbName1, "100,test-123,"+today, "100,test-123,"+today);
+        for (Tuple t : tupleSet)
+            verify(collector).ack(t);
+        checkDataWritten(tblName1, dbName1, "100,test-123," + today, "100,test-123," + today);
         bolt.cleanup();
     }
 
@@ -231,8 +249,9 @@ public class TestHiveBolt {
             .withTxnsPerBatch(2)
             .withBatchSize(1);
         bolt = new HiveBolt(hiveOptions);
-        bolt.prepare(config,null,new OutputCollector(collector));
-        Tuple tuple1 = generateTestTuple(1,"SJC","Sunnyvale","CA");
+        bolt.prepare(config, null, new OutputCollector(collector));
+        Tuple tuple1 = generateTestTuple(1, "SJC", "Sunnyvale", "CA");
+
         //Tuple tuple2 = generateTestTuple(2,"SFO","San Jose","CA");
         bolt.execute(tuple1);
         verify(collector).ack(tuple1);
@@ -254,7 +273,7 @@ public class TestHiveBolt {
             .withTxnsPerBatch(2)
             .withBatchSize(1);
         bolt = new HiveBolt(hiveOptions);
-        bolt.prepare(config,null,new OutputCollector(collector));
+        bolt.prepare(config,null,collector);
         Tuple tuple1 = generateTestTuple(1,"SJC","Sunnyvale","CA");
         //Tuple tuple2 = generateTestTuple(2,"SFO","San Jose","CA");
         bolt.execute(tuple1);
@@ -265,6 +284,116 @@ public class TestHiveBolt {
         bolt.cleanup();
     }
 
+    @Test
+    public void testNoAcksUntilFlushed()
+    {
+        JsonRecordHiveMapper mapper = new JsonRecordHiveMapper()
+                .withColumnFields(new Fields(colNames1))
+                .withPartitionFields(new Fields(partNames));
+        HiveOptions hiveOptions = new HiveOptions(metaStoreURI,dbName,tblName,mapper)
+                .withTxnsPerBatch(2)
+                .withBatchSize(2);
+
+        bolt = new HiveBolt(hiveOptions);
+        bolt.prepare(config, null, new OutputCollector(collector));
+
+        Tuple tuple1 = generateTestTuple(1,"SJC","Sunnyvale","CA");
+        Tuple tuple2 = generateTestTuple(2,"SFO","San Jose","CA");
+
+        bolt.execute(tuple1);
+        verifyZeroInteractions(collector);
+
+        bolt.execute(tuple2);
+        verify(collector).ack(tuple1);
+        verify(collector).ack(tuple2);
+        bolt.cleanup();
+    }
+
+    @Test
+    public void testNoAcksIfFlushFails() throws Exception
+    {
+        JsonRecordHiveMapper mapper = new JsonRecordHiveMapper()
+                .withColumnFields(new Fields(colNames1))
+                .withPartitionFields(new Fields(partNames));
+        HiveOptions hiveOptions = new HiveOptions(metaStoreURI,dbName,tblName,mapper)
+                .withTxnsPerBatch(2)
+                .withBatchSize(2);
+
+        HiveBolt spyBolt = Mockito.spy(new HiveBolt(hiveOptions));
+
+        //This forces a failure of all the flush attempts
+        doThrow(new InterruptedException()).when(spyBolt).flushAllWriters(true);
+
+
+        spyBolt.prepare(config, null, new OutputCollector(collector));
+
+        Tuple tuple1 = generateTestTuple(1,"SJC","Sunnyvale","CA");
+        Tuple tuple2 = generateTestTuple(2,"SFO","San Jose","CA");
+
+        spyBolt.execute(tuple1);
+        spyBolt.execute(tuple2);
+
+        verify(collector, never()).ack(tuple1);
+        verify(collector, never()).ack(tuple2);
+
+        spyBolt.cleanup();
+    }
+
+    @Test
+    public void testTickTuple()
+    {
+        JsonRecordHiveMapper mapper = new JsonRecordHiveMapper()
+                .withColumnFields(new Fields(colNames1))
+                .withPartitionFields(new Fields(partNames));
+        HiveOptions hiveOptions = new HiveOptions(metaStoreURI,dbName,tblName,mapper)
+                .withTxnsPerBatch(2)
+                .withBatchSize(2);
+
+        bolt = new HiveBolt(hiveOptions);
+        bolt.prepare(config, null, new OutputCollector(collector));
+
+        Tuple tuple1 = generateTestTuple(1, "SJC", "Sunnyvale", "CA");
+        Tuple tuple2 = generateTestTuple(2, "SFO", "San Jose", "CA");
+
+
+        bolt.execute(tuple1);
+
+        //The tick should cause tuple1 to be ack'd
+        Tuple mockTick = Mockito.mock(Tuple.class);
+        Mockito.when(mockTick.getSourceComponent()).thenReturn(SYSTEM_COMPONENT_ID);
+        Mockito.when(mockTick.getSourceStreamId()).thenReturn(SYSTEM_TICK_STREAM_ID);
+        bolt.execute(mockTick);
+        verify(collector).ack(tuple1);
+
+        //The second tuple should NOT be ack'd because the batch should be cleared and this will be
+        //the first transaction in the new batch
+        bolt.execute(tuple2);
+        verify(collector, never()).ack(tuple2);
+
+        bolt.cleanup();
+    }
+
+    @Test
+    public void testNoTickEmptyBatches() throws Exception
+    {
+        JsonRecordHiveMapper mapper = new JsonRecordHiveMapper()
+                .withColumnFields(new Fields(colNames1))
+                .withPartitionFields(new Fields(partNames));
+        HiveOptions hiveOptions = new HiveOptions(metaStoreURI,dbName,tblName,mapper)
+                .withTxnsPerBatch(2)
+                .withBatchSize(2);
+
+        bolt = new HiveBolt(hiveOptions);
+        bolt.prepare(config, null, new OutputCollector(collector));
+
+        //The tick should NOT cause any acks since the batch was empty except for acking itself
+        Tuple mockTick = Mockito.mock(Tuple.class);
+        Mockito.when(mockTick.getSourceComponent()).thenReturn(SYSTEM_COMPONENT_ID);
+        Mockito.when(mockTick.getSourceStreamId()).thenReturn(SYSTEM_TICK_STREAM_ID);
+        verifyZeroInteractions(collector);
+
+        bolt.cleanup();
+    }
 
     @Test
     public void testMultiPartitionTuples()
@@ -282,12 +411,16 @@ public class TestHiveBolt {
         String city = "San Jose";
         String state = "CA";
         checkRecordCountInTable(tblName,dbName,0);
+
+        Set<Tuple> tupleSet = new HashSet<Tuple>();
         for(int i=0; i < 100; i++) {
             Tuple tuple = generateTestTuple(id,msg,city,state);
+            tupleSet.add(tuple);
             bolt.execute(tuple);
-            verify(collector).ack(tuple);
         }
         checkRecordCountInTable(tblName, dbName, 100);
+        for (Tuple t : tupleSet)
+            verify(collector).ack(t);
         bolt.cleanup();
     }
 
