@@ -31,7 +31,7 @@ use default;
 ```
 
 ```
-create table test_table ( id INT, name STRING, phone STRING, street STRING) partitioned by (city STRING, state STRING) clustered by (id) into 2 buckets stored as orc tblproperties ("orc.compress"="NONE");
+create table test_table ( id INT, name STRING, phone STRING, street STRING) partitioned by (city STRING, state STRING) clustered by (id) into 2 buckets stored as orc tblproperties ("orc.compress"="NONE", "transactional"="true");
 ```
 
 Run the 

@@ -18,15 +18,14 @@
 
 package org.apache.storm.hive.bolt;
 
-import org.apache.storm.Config;
-import org.apache.storm.task.GeneralTopologyContext;
-import org.apache.storm.task.OutputCollector;
-import org.apache.storm.topology.TopologyBuilder;
-import org.apache.storm.tuple.Fields;
-import org.apache.storm.tuple.Tuple;
-import org.apache.storm.tuple.TupleImpl;
-import org.apache.storm.tuple.Values;
-import org.apache.storm.utils.MockTupleHelpers;
+import backtype.storm.Config;
+import backtype.storm.task.GeneralTopologyContext;
+import backtype.storm.task.OutputCollector;
+import backtype.storm.topology.TopologyBuilder;
+import backtype.storm.tuple.Fields;
+import backtype.storm.tuple.Tuple;
+import backtype.storm.tuple.TupleImpl;
+import backtype.storm.tuple.Values;
 
 import org.apache.storm.hive.common.HiveOptions;
 import org.apache.storm.hive.bolt.mapper.DelimitedRecordHiveMapper;
@@ -69,6 +68,8 @@ import java.text.SimpleDateFormat;
 import org.apache.hive.hcatalog.streaming.*;
 
 public class TestHiveBolt {
+    final static  String SYSTEM_COMPONENT_ID = "__system";
+    final static String SYSTEM_TICK_STREAM_ID = "__tick";
     final static String dbName = "testdb";
     final static String tblName = "test_table";
     final static String dbName1 = "testdb1";
@@ -358,7 +359,9 @@ public class TestHiveBolt {
         bolt.execute(tuple1);
 
         //The tick should cause tuple1 to be ack'd
-        Tuple mockTick = MockTupleHelpers.mockTickTuple();
+        Tuple mockTick = Mockito.mock(Tuple.class);
+        Mockito.when(mockTick.getSourceComponent()).thenReturn(SYSTEM_COMPONENT_ID);
+        Mockito.when(mockTick.getSourceStreamId()).thenReturn(SYSTEM_TICK_STREAM_ID);
         bolt.execute(mockTick);
         verify(collector).ack(tuple1);
 
@@ -384,8 +387,9 @@ public class TestHiveBolt {
         bolt.prepare(config, null, new OutputCollector(collector));
 
         //The tick should NOT cause any acks since the batch was empty except for acking itself
-        Tuple mockTick = MockTupleHelpers.mockTickTuple();
-        bolt.execute(mockTick);
+        Tuple mockTick = Mockito.mock(Tuple.class);
+        Mockito.when(mockTick.getSourceComponent()).thenReturn(SYSTEM_COMPONENT_ID);
+        Mockito.when(mockTick.getSourceStreamId()).thenReturn(SYSTEM_TICK_STREAM_ID);
         verifyZeroInteractions(collector);
 
         bolt.cleanup();
